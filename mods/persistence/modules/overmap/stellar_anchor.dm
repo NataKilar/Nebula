@@ -36,6 +36,8 @@ GLOBAL_LIST_EMPTY(stellar_anchors)
 
 /obj/machinery/network/stellar_anchor/ui_data(var/mob/user, ui_key)
 	. = ..()
+	var/datum/extension/network_device/D = get_extension(src, /datum/extension/network_device)
+	.["network"] = D.network_tag
 	.["anchored_areas"] = anchored_areas
 	.["sector_name"] = sector_name
 	.["should_launch"] = should_launch
@@ -52,14 +54,14 @@ GLOBAL_LIST_EMPTY(stellar_anchors)
 		var/datum/extension/eye/anchor_eye = get_extension(src, /datum/extension/eye)
 		anchor_eye.look(user)
 		return TOPIC_REFRESH
-	if(href_list["should_launch"])
+	else if(href_list["should_launch"])
 		if(!created_sector)
 			should_launch = !should_launch
 		else
 			should_launch = TRUE // Safety in case should_launch gets reset.
 		check_errors()
 		return TOPIC_REFRESH
-	if(href_list["launch"])
+	else if(href_list["launch"])
 		if(!created_sector) // Cannot launch again after the sector is created.
 			if(check_errors()) 
 				var/confirm = alert(user, "This will permanently register \the [gen_fluff], are you sure?", "[capitalize(gen_fluff)] finalization", "Yes", "No")
@@ -70,14 +72,14 @@ GLOBAL_LIST_EMPTY(stellar_anchors)
 			else
 				to_chat(user, SPAN_WARNING("Cannot launch \the [src] due to current errors!"))
 				return TOPIC_HANDLED
-	if(href_list["change_color"])
+	else if(href_list["change_color"])
 		var/new_color = input(user, "Choose a color.", "\the [src]", sector_color) as color|null
 		if(new_color && new_color != sector_color)
 			sector_color = new_color
 			to_chat(user, SPAN_NOTICE("You set \the [src] to register \a [gen_fluff] with <font color='[sector_color]'>this color</font>"))
 			return TOPIC_HANDLED
 
-	if(href_list["change_sector_name"])
+	else if(href_list["change_sector_name"])
 		var/new_sector_name = sanitize(input(user, "Enter a new name for the created [gen_fluff]:", "Change [gen_fluff] name.") as null|text)
 		if(!new_sector_name)
 			return TOPIC_HANDLED
@@ -86,9 +88,13 @@ GLOBAL_LIST_EMPTY(stellar_anchors)
 			return TOPIC_HANDLED
 		sector_name = new_sector_name
 		return TOPIC_REFRESH
-	if(href_list["check_errors"])
+	else if(href_list["check_errors"])
 		check_errors()
 		return TOPIC_REFRESH
+	else if(href_list["settings"])
+		var/datum/extension/network_device/D = get_extension(src, /datum/extension/network_device)
+		D.ui_interact(user)
+		. = TOPIC_REFRESH
 
 /obj/machinery/network/stellar_anchor/proc/add_area(var/area/area_to_add)
 	. = list()
