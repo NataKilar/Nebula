@@ -4,17 +4,17 @@
 	#include "../../mods/species/ascent/_ascent.dme"
 	#include "../../mods/content/xenobiology/_xenobiology.dme"
 
-	#include "outreach_test.dm"
+	#include "kleibkhar_test.dm"
 	#include "chargen/chargen_areas.dm"
 
-	#include "outreach_access.dm"
-	#include "outreach_areas.dm"
-	#include "outreach_jobs.dm"
-	#include "outreach_exoplanet.dm"
+	#include "kleibkhar_access.dm"
+	#include "kleibkhar_areas.dm"
+	#include "kleibkhar_jobs.dm"
+	#include "kleibkhar_exoplanet.dm"
 
-	#define USING_MAP_DATUM /datum/map/outreach
+	#define USING_MAP_DATUM /datum/map/kleibkhar
 #elif !defined(MAP_OVERRIDE)
 
-	#warn A map has already been included, ignoring Outreach
+	#warn A map has already been included, ignoring kleibkhar
 
 #endif
