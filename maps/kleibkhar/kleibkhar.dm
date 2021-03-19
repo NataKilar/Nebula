@@ -11,6 +11,7 @@
 	#include "kleibkhar_areas.dm"
 	#include "kleibkhar_jobs.dm"
 	#include "kleibkhar_exoplanet.dm"
+	#include "kleibkhar_unit_testing.dm"
 
 	#define USING_MAP_DATUM /datum/map/kleibkhar
 #elif !defined(MAP_OVERRIDE)
