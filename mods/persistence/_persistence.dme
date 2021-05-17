@@ -25,7 +25,6 @@
 #include "datums\extensions\lockable.dm"
 #include "datums\extensions\assembly\assembly.dm"
 #include "datums\extensions\eye\area_control.dm"
-#include "datums\extensions\eye\stellar_anchor.dm"
 #include "datums\mind\mind.dm"
 #include "datums\observation\saving.dm"
 #include "game\gamemodes\persistence.dm"

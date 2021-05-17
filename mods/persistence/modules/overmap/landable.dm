@@ -1,3 +1,8 @@
+/obj/effect/overmap/visitable/ship/landable
+	// We forego the use of visitor landmarks, and use free landing instead.
+	free_landing = TRUE
+	restricted_area = 20
+
 /obj/effect/overmap/visitable/ship/landable/on_saving_start()
 	// In case the ship is landed in a sector, save where the sector is located.
 	start_x = loc.x
@@ -9,17 +14,27 @@
 	var/datum/shuttle/ship_shuttle = SSshuttle.shuttles[shuttle]
 	if(!ship_shuttle || !ship_shuttle.current_location)
 		log_error("Could not move the landable ship [src] into its current location!")
+	if(check_rent())
+		if(ship_shuttle.current_location == landmark)
+			use_mapped_z_levels = TRUE
+			for(var/ship_z in map_z)
+				SSpersistence.AddSavedLevel(ship_z)
+		else
+			for(var/area/A in ship_shuttle.shuttle_area)
+				SSpersistence.AddSavedArea(A)
 	forceMove(get_turf(ship_shuttle.current_location))
 
-/obj/effect/overmap/visitable/ship/landable/find_z_levels()
-	// The ship has had its sector saved.
-	if(landmark)
-		if(landmark.z) // Check to make sure there isn't a floating reference to the landmark that saved it instead.
-			map_z += landmark.z
-			return
-	// Otherwise, the ship has likely landed elsewhere, and needs to reconstruct its space z-level.
-	qdel(landmark)
-	. = ..()
+/obj/effect/overmap/visitable/ship/landable/on_saving_end()
+	use_mapped_z_levels = initial(use_mapped_z_levels)
+	var/datum/shuttle/ship_shuttle = SSshuttle.shuttles[shuttle]
+	if(ship_shuttle)
+		if(ship_shuttle.current_location == landmark)
+			for(var/ship_z in map_z)
+				SSpersistence.RemoveSavedLevel(ship_z)
+		else
+			for(var/area/A in ship_shuttle.shuttle_area)
+				SSpersistence.RemoveSavedArea(A)
+	forceMove(old_loc)
 
 // The landable ship contains a reference to its landmark, so only save if the ship is in its z-level.
 /obj/effect/shuttle_landmark/ship/should_save()
@@ -35,15 +50,9 @@
 		. = ..()
 
 /obj/effect/shuttle_landmark/visiting_shuttle
-	should_save = FALSE // Visiting shuttle landmarks will be replaced with a revised landing system.
+	should_save = FALSE
 
-/obj/effect/overmap/visitable/ship/landable/created
-	should_save = FALSE  // Created landable ships are set to save manually by their stellar anchors to ensure that they do not persist when the anchor is destroyed or deactivated.
-
-/obj/effect/overmap/visitable/ship/landable/created/Initialize(var/mapload, var/custom_name, var/ship_color)
-	if(custom_name)
-		shuttle = custom_name
-		name = custom_name
-	if(ship_color) color = ship_color
-
-	. = ..(mapload)
+// This is terrible, but there's no good way to override their creation because shuttle landmarks are created in populate_sector_objects.
+/obj/effect/shuttle_landmark/visiting_shuttle/Initialize(mapload, obj/effect/shuttle_landmark/ship/master, _name)
+	. = ..()
+	return INITIALIZE_HINT_QDEL

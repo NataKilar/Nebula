@@ -29,7 +29,7 @@
 
 	// Generate the areas of the overmap that are hazardous.
 	// Map is placed at the lower left corner of the overmap, not including the edges (2, 2).
-	new /datum/random_map/automata/overmap(null, 2, 2, global.using_map.overmap_z, global.using_map.overmap_size - 2, global.using_map.overmap_size - 2, FALSE, FALSE, FALSE)
+	new /datum/random_map/automata/overmap("outreach", 2, 2, GLOB.using_map.overmap_z, GLOB.using_map.overmap_size - 2, GLOB.using_map.overmap_size - 2, FALSE, FALSE, FALSE)
 	
 #endif
 

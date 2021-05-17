@@ -8,6 +8,7 @@
 
 	var/list/saved_areas	= 	list()
 	var/list/saved_levels 	= 	list()	// Saved levels are saved entirely and optimized with get_base_turf()
+	var/rent_enabled = FALSE			// Whether or not rent will be required for created sectors.
 
 	var/serializer/sql/serializer = new() // The serializer impl for actually saving.
 	var/serializer/sql/one_off/one_off	= new() // The serializer impl for one off serialization/deserialization.
@@ -319,6 +320,14 @@
 			//SSatoms.adjust_init_arguments = TRUE
 	catch(var/exception/e)
 		to_world_log("Load failed on line [e.line], file [e.file] with message: '[e]'.")
+
+/datum/controller/subsystem/persistence/proc/AddSavedLevel(var/z)
+	saved_levels |= z
+
+/datum/controller/subsystem/persistence/proc/RemoveSavedLevel(var/z)
+	if(z in GLOB.using_map.saved_levels)
+		return
+	saved_levels -= z
 
 /datum/controller/subsystem/persistence/proc/AddSavedArea(var/area/A)
 	saved_areas |= A

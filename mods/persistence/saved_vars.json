@@ -3001,7 +3001,11 @@
 			"sector_flags",
 			"hide_from_reports",
 			"has_distress_beacon",
-			"free_landing"
+			"free_landing",
+			"rent_amount",
+			"paid_rent",
+			"rent_period",
+			"last_due"
 		]
 	},
 	{
