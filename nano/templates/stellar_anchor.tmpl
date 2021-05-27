@@ -1,10 +1,25 @@
-{{if data.network}}
-	<div class="item">
-		<div class="itemContent">
-			{{:helper.link(data.network, null, { 'settings': 1 }, null)}}
-		</div>
+<h3>Launch Options</h3>
+<i>Launching the stellar anchor will create a registered sector in space.</i><br>
+<div class="item">
+	<div class="itemLabel">
+		Sector name:
 	</div>
-{{/if}}
+	<div class="itemContent">
+		{{:helper.link(data.sector_name ? data.sector_name : 'No name!', 'pencil', {'change_sector_name' : '1'}, null , null)}}
+	</div>
+	<div class="itemLabel">
+		Sector Color:
+	</div>
+	<div class="itemContent">
+		{{:helper.link('Change color', 'pencil', { 'change_color' : 1})}}
+	</div>
+	<div class="itemLabel">
+		Sector Type:
+	</div>
+	<div class="itemContent">
+		{{:helper.link(data.sector_type, 'pencil', { 'sector_type' : 1})}}
+	</div>
+</div>
 <div class="statusDisplay" style="min-height: 120px;">
 	<div class="item">
 		<div class="itemLabel">
@@ -17,24 +32,6 @@
 		</div>
 	</div>
 </div>
-<h3>Launch Options</h3>
-<i>Launching the stellar anchor will create a registered sector in space.</i><br>
-<div class="item">
-	<div class="itemLabel">
-		Sector name:
-	</div>
-	<div class="itemContent">
-		{{:helper.link(data.sector_name ? data.sector_name : 'No name!', 'pencil', {'change_sector_name' : '1'}, null , null)}}
-	</div>
-</div>
-<div class="item">
-	<div class="itemLabel">
-		Sector Color:
-	</div>
-	<div class="itemContent">
-		{{:helper.link('Change color', 'pencil', { 'change_color' : 1})}}
-	</div>
-</div>
 <div class="item">
 	<div class="itemContent">
 		{{:helper.link('Launch stellar anchor', 'arrowthickstop-1-e', {'launch' : '1'}, null , null)}}
@@ -43,5 +40,3 @@
 		{{:helper.link('Check launching validity', 'gear', {'check_errors' : '1'}, null , null)}}
 	</div>
 </div>
-<hr>
-<i>EXONET Firmware v110.04.4h Copyright EXONETWORKS INC</i>

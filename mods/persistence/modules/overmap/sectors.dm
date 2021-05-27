@@ -42,8 +42,16 @@
 /obj/effect/overmap/visitable/proc/check_rent()
 	if(!SSpersistence.rent_enabled || (world.realtime < last_due + rent_period))
 		return TRUE
-	if(paid_rent - rent_amount > 0)
+	if(paid_rent - rent_amount >= 0)
 		paid_rent -= rent_amount
 		last_due = world.realtime
 		return TRUE
 	return FALSE
+
+// This is terrible, but because of when they are generated, there's no good way to override the creation of visiting_shuttle landmarks without
+// a ridiculous amount of copypasta.
+/obj/effect/overmap/visitable/add_landmark(obj/effect/shuttle_landmark/landmark, shuttle_restricted_type)
+	if(istype(landmark, /obj/effect/shuttle_landmark/visiting_shuttle))
+		qdel(landmark)
+		return
+	. = ..()

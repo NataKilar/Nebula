@@ -42,7 +42,7 @@
 		data["sector_name"] = target.name
 		data["rent_paid"] = target.paid_rent
 		data["rent_due"] = SSpersistence.rent_enabled ? target.rent_amount : 0
-		data["rent_date"] = SSpersistence.rent_enabled ? time2text(target.last_due + target.rent_period, "MM-DD") : "Rent payment has been deffered by local authorities."
+		data["rent_date"] = SSpersistence.rent_enabled ? time2text(target.last_due + target.rent_period, "MM-DD") : "Rent payment has been deferred by local authorities."
 
 	ui = SSnano.try_update_ui(user, src, ui_key, ui, data, force_open)
 	if (!ui)
