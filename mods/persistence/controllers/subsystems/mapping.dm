@@ -25,11 +25,10 @@
 	// Initialize the overmap for Persistence.
 	if(global.using_map.use_overmap)
 		if(!global.using_map.overmap_z)
-			build_overmap() // If a overmap hasn't been loaded, create a new one.
-
-	// Generate the areas of the overmap that are hazardous.
-	// Map is placed at the lower left corner of the overmap, not including the edges (2, 2).
-	new /datum/random_map/automata/overmap("outreach", 2, 2, GLOB.using_map.overmap_z, GLOB.using_map.overmap_size - 2, GLOB.using_map.overmap_size - 2, FALSE, FALSE, FALSE)
+			build_overmap() // If a overmap hasn't been included in the map, create a new one.
+			// Generate the areas of the overmap that are hazardous.
+			// Map is placed at the lower left corner of the overmap, not including the edges (2, 2).
+			new /datum/random_map/automata/overmap("outreach", 2, 2, global.using_map.overmap_z, global.using_map.overmap_size - 2, global.using_map.overmap_size - 2, FALSE, FALSE, FALSE)
 	
 #endif
 
@@ -39,14 +38,3 @@
 /datum/map
 	var/list/default_levels
 	var/overmap_seed = "overmapseed"
-
-/obj/overmap_area_saver
-	name = "Overmap Area Saver"
-	icon = 'icons/effects/effects.dmi'
-	icon_state = "energynet"
-	invisibility = INVISIBILITY_ABSTRACT
-	var/area/overmap_area
-
-/obj/overmap_area_saver/Initialize()
-	. = ..()
-	overmap_area = locate(/area/overmap)

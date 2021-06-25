@@ -4253,5 +4253,11 @@
 			"output_container",
 			"input_buffer"
 		]
+	},
+	{
+		"path":"/atom/movable/area_holder",
+		"vars":[
+			"areas"
+		]
 	}
 ]

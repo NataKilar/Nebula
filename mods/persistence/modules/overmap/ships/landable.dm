@@ -18,6 +18,11 @@
 	saved_areas.Cut()
 	. = ..()
 	
+/obj/effect/overmap/visitable/ship/landable/move_to_starting_location()
+	if(start_x && start_y)
+		forceMove(locate(start_x, start_y, global.using_map.overmap_z))
+		return
+	..()
 
 /obj/effect/overmap/visitable/ship/landable/on_saving_start()
 	// In case the ship is landed in a sector, save where the sector is located.
@@ -39,7 +44,7 @@
 		else
 			for(var/area/A in ship_shuttle.shuttle_area)
 				SSpersistence.AddSavedArea(A)
-				saved_areas += A
+		saved_areas = ship_shuttle.shuttle_area.Copy()
 		saved_landmark = ship_shuttle.current_location
 	forceMove(get_turf(ship_shuttle.current_location))
 

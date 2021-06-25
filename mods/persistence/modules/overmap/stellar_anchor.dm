@@ -22,7 +22,7 @@
 	ui_interact(user)
 	return TRUE
 	
-/obj/machinery/stellar_anchor/ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = 1, datum/topic_state/state = GLOB.default_state)
+/obj/machinery/stellar_anchor/ui_interact(mob/user, ui_key = "main", datum/nanoui/ui = null, force_open = 1, datum/topic_state/state = global.default_topic_state)
 	var/data[0]
 	data["anchored_areas"] = anchored_areas
 	data["sector_name"] = sector_name

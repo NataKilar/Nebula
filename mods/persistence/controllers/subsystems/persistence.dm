@@ -34,7 +34,7 @@
 	
 	// Launch events
 
-	events_repository.raise_event(/decl/observ/world_saving_start_event)
+	events_repository.raise_event(/decl/observ/world_saving_start_event, src)
 	try
 		//
 		// 	PREPARATION SECTIONS
@@ -131,6 +131,28 @@
 			var/datum/persistence/load_cache/z_level/z_level = z_transform[z]
 			serializer.z_map["[z_level.index]"] = z_level.new_index
 		serializer.z_index = new_z_index
+		
+		// Now we find all the area datums themselves that need to be saved, since keeping references on the turfs is a huge waste of space.
+		var/list/areas_to_serialize = list()
+		for(var/area/A in global.areas)
+			if(istype(A, world.area))
+				continue
+			var/turf/T = locate() in A.contents
+			// Because cross Z-level areas should not exist except on the planet, this should be ok.
+			if(!T || !(T.z in saved_levels))
+				continue
+			areas_to_serialize |= A
+		areas_to_serialize |= saved_areas
+		// Locate a turf that will always be saved to move or create the area holder
+		var/turf/saved_turf = locate(world.maxx/2, world.maxy/2, global.using_map.saved_levels[1])
+		if(!global.area_holder)
+			global.area_holder = new /atom/movable/area_holder(saved_turf)
+		area_holder.areas = areas_to_serialize
+		area_holder.forceMove(saved_turf)
+		// Just in case, serialize the holder. No need to commit ref updates because the areas are wrapped.
+		serializer.Serialize(area_holder)
+		serializer.Commit()
+		area_holder.areas.Cut()
 
 		// This will save all the turfs/world.
 		var/index = 1
@@ -232,7 +254,7 @@
 	to_world("Save complete! Took [(world.timeofday-start)/10]s to save world.")
 	
 	// Launch event for anything that needs to do cleanup post save.
-	events_repository.raise_event(/decl/observ/world_saving_finish_event)
+	events_repository.raise_event(/decl/observ/world_saving_finish_event, src)
 
 /datum/controller/subsystem/persistence/proc/LoadWorld()
 	try
@@ -330,7 +352,7 @@
 	saved_levels |= z
 
 /datum/controller/subsystem/persistence/proc/RemoveSavedLevel(var/z)
-	if(z in GLOB.using_map.saved_levels)
+	if(z in global.using_map.saved_levels)
 		return
 	saved_levels -= z
 

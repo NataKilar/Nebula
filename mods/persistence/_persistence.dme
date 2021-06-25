@@ -138,6 +138,7 @@
 #include "modules\random_map\automata\overmap.dm"
 #include "modules\world_save\_persistence.dm"
 #include "modules\world_save\_limbo_state.dm"
+#include "modules\world_save\area_holder.dm"
 #include "modules\world_save\load_cache.dm"
 #include "modules\world_save\serializers\_serializer.dm"
 #include "modules\world_save\serializers\json_serializer.dm"
