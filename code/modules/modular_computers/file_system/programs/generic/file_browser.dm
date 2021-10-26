@@ -89,7 +89,7 @@
 	if(href_list["PRG_openfile"])
 		. = TOPIC_HANDLED
 		var/datum/computer_file/data/F = current_filesource.get_file(href_list["PRG_openfile"])
-		if(F && (F.get_file_perms(accesses, user)) & NTOS_READ_ACCESS)
+		if(F && (F.get_file_perms(accesses, user)) & OS_READ_ACCESS)
 			open_file = href_list["PRG_openfile"]
 			. = TOPIC_REFRESH
 		else
@@ -142,7 +142,7 @@
 		if(F.read_only)
 			error = "This file is read only. You cannot edit it."
 			return
-		if(!(F.get_file_perms(accesses, user) & NTOS_WRITE_ACCESS))
+		if(!(F.get_file_perms(accesses, user) & OS_WRITE_ACCESS))
 			error = "You do not have write access to this file."
 			return
 		var/oldtext = html_decode(F.stored_data)
@@ -180,11 +180,11 @@
 			return
 		var/copying = alert(usr, "Would you like to copy the file or transfer it? Transfering files requires write access.", "Copying file", "Copy", "Transfer")
 		if(copying == "Transfer")
-			if(!(F.get_file_perms(accesses, user) & NTOS_WRITE_ACCESS))
+			if(!(F.get_file_perms(accesses, user) & OS_WRITE_ACCESS))
 				error = "ACCESS ERROR: You do not have permission to transfer this file"
 				return
 		else
-			if(!(F.get_file_perms(accesses, user) & NTOS_READ_ACCESS))
+			if(!(F.get_file_perms(accesses, user) & OS_READ_ACCESS))
 				error = "ACCESS ERROR: You do not have permission to copy this file"
 				return			
 		var/list/choices = list()

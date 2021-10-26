@@ -190,7 +190,7 @@ var/global/arrest_security_status =  "Arrest"
 	var/dat = "<tt><H2>RECORD DATABASE DATA DUMP</H2><i>Generated on: [stationdate2text()] [stationtime2text()]</i><br>******************************<br>"
 	dat += "<table>"
 	for(var/datum/report_field/F in CR.fields)
-		if(F.get_perms(access) & NTOS_READ_ACCESS)
+		if(F.get_perms(access) & OS_READ_ACCESS)
 			dat += "<tr><td><b>[F.display_name()]</b>"
 			if(F.needs_big_box)
 				dat += "<tr>"

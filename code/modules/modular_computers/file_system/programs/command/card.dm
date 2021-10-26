@@ -150,7 +150,7 @@
 			else
 				module.show_assignments = 1
 		if("print")
-			if(!(get_file_perms(module.get_access(user), user) & NTOS_WRITE_ACCESS))
+			if(!(get_file_perms(module.get_access(user), user) & OS_WRITE_ACCESS))
 				to_chat(usr, SPAN_WARNING("Access denied."))
 				return
 			if(computer.has_component(PART_PRINTER)) //This option should never be called if there is no printer
@@ -193,7 +193,7 @@
 			else
 				card_slot.insert_id(user.get_active_hand(), user)
 		if("terminate")
-			if(!(get_file_perms(module.get_access(user), user) & NTOS_WRITE_ACCESS))
+			if(!(get_file_perms(module.get_access(user), user) & OS_WRITE_ACCESS))
 				to_chat(usr, SPAN_WARNING("Access denied."))
 				return
 			if(computer && can_run(user, 1))
@@ -201,7 +201,7 @@
 				remove_nt_access(id_card)
 				callHook("terminate_employee", list(id_card))
 		if("edit")
-			if(!(get_file_perms(module.get_access(user), user) & NTOS_WRITE_ACCESS))
+			if(!(get_file_perms(module.get_access(user), user) & OS_WRITE_ACCESS))
 				to_chat(usr, SPAN_WARNING("Access denied."))
 				return
 			if(computer && can_run(user, 1))
@@ -275,7 +275,7 @@
 						remove_nt_access(id_card)
 						apply_access(id_card, access)
 		if("assign")
-			if(!(get_file_perms(module.get_access(user), user) & NTOS_WRITE_ACCESS))
+			if(!(get_file_perms(module.get_access(user), user) & OS_WRITE_ACCESS))
 				to_chat(usr, SPAN_WARNING("Access denied."))
 				return
 			if(computer && can_run(user, 1) && id_card)

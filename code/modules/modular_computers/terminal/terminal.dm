@@ -91,7 +91,7 @@
 	var/list/content = history.Copy()
 	var/account_name
 	// current_account will be reset on access check if account look up fails.
-	var/datum/extension/interactive/ntos/account_computer = get_account_computer()
+	var/datum/extension/interactive/os/account_computer = get_account_computer()
 	if(account_computer.login && account_computer.current_account)
 		var/datum/computer_network/network = account_computer.get_network()
 		if(network)
@@ -153,5 +153,5 @@
 	return computer
 
 /datum/terminal/proc/get_access(mob/user)
-	var/datum/extension/interactive/ntos/account_computer = get_account_computer()
+	var/datum/extension/interactive/os/account_computer = get_account_computer()
 	return(account_computer.get_access(user))

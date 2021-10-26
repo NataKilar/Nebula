@@ -28,7 +28,7 @@
 /datum/computer_file/program/wordprocessor/proc/open_file(var/openingfile, var/list/accesses, var/mob/user)
 	var/datum/computer_file/data/F = get_file(openingfile)
 	if(F)
-		if(!(F.get_file_perms(accesses, user) & NTOS_READ_ACCESS))
+		if(!(F.get_file_perms(accesses, user) & OS_READ_ACCESS))
 			error = "I/O error: You do not have permission to read file '[openingfile]'."
 			return FALSE
 		open_file = F.filename
@@ -126,7 +126,7 @@
 		var/oldtext = html_decode(loaded_data)
 		oldtext = replacetext(oldtext, "\[br\]", "\n")
 		var/datum/computer_file/data/F = get_file(open_file)
-		if(!(F.get_file_perms(NM.get_access(usr), usr) & NTOS_WRITE_ACCESS))
+		if(!(F.get_file_perms(NM.get_access(usr), usr) & OS_WRITE_ACCESS))
 			error = "I/O error: You do not have permission to edit this file."
 			return 1
 		var/newtext = sanitize(replacetext(input(usr, "Editing file '[open_file]'. You may use most tags used in paper formatting:", "Text Editor", oldtext) as message|null, "\n", "\[br\]"), MAX_TEXTFILE_LENGTH)

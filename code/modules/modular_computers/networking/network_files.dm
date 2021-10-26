@@ -36,7 +36,7 @@
 	. = get_all_files_of_type(/datum/computer_file/report)
 	if(access)
 		for(var/datum/computer_file/report/report in .)
-			if(!(report.get_file_perms(access, user) & NTOS_WRITE_ACCESS))
+			if(!(report.get_file_perms(access, user) & OS_WRITE_ACCESS))
 				. -= report
 
 // Software

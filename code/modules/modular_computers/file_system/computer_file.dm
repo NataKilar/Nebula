@@ -1,8 +1,8 @@
 var/global/file_uid = 0
 
-#define NTOS_READ_ACCESS  BITFLAG(0)
-#define NTOS_WRITE_ACCESS BITFLAG(1)
-#define NTOS_MOD_ACCESS   BITFLAG(2)
+#define OS_READ_ACCESS  BITFLAG(0)
+#define OS_WRITE_ACCESS BITFLAG(1)
+#define OS_MOD_ACCESS   BITFLAG(2)
 
 /datum/computer_file
 	var/filename = "NewFile" 								// Placeholder. No spacebars
@@ -54,13 +54,13 @@ var/global/file_uid = 0
 /datum/computer_file/proc/get_file_perms(var/list/accesses, var/mob/user)
 	. = 0
 	if(!accesses || (isghost(user) && check_rights(R_ADMIN, 0, user))) // No access list past means internal usage, so grant full access. Also override for use by admin ghosts.
-		return (NTOS_READ_ACCESS | NTOS_WRITE_ACCESS | NTOS_MOD_ACCESS)
+		return (OS_READ_ACCESS | OS_WRITE_ACCESS | OS_MOD_ACCESS)
 	if(!LAZYLEN(read_access) || has_access(read_access, accesses))
-		. |= NTOS_READ_ACCESS
+		. |= OS_READ_ACCESS
 	if(!LAZYLEN(write_access) || has_access(write_access, accesses))
-		. |= NTOS_WRITE_ACCESS
+		. |= OS_WRITE_ACCESS
 	if(!LAZYLEN(mod_access) || has_access(mod_access, accesses))
-		. |= NTOS_MOD_ACCESS
+		. |= OS_MOD_ACCESS
 	
 /datum/computer_file/proc/get_perms_readable()
 	var/list/msg = list()
@@ -91,7 +91,7 @@ var/global/file_uid = 0
 		return FALSE
 
 	switch(perm)
-		if(NTOS_READ_ACCESS)
+		if(OS_READ_ACCESS)
 			if(change == "+")
 				if(!LAZYLEN(read_access))
 					read_access = list()
@@ -109,7 +109,7 @@ var/global/file_uid = 0
 			else
 				return FALSE // Something unexpected was passed into the change argument.
 
-		if(NTOS_WRITE_ACCESS)
+		if(OS_WRITE_ACCESS)
 			if(change == "+")
 				if(!LAZYLEN(write_access))
 					write_access = list()
@@ -127,7 +127,7 @@ var/global/file_uid = 0
 			else
 				return FALSE
 			
-		if(NTOS_MOD_ACCESS)
+		if(OS_MOD_ACCESS)
 			var/list/test_list // You can't modify access such that you can't access the file any longer, so we test changes first.
 			if(change == "+")
 				if(!LAZYLEN(mod_access))

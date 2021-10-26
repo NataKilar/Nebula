@@ -69,7 +69,7 @@
 	inbox.Add(received_message)
 	
 	for(var/weakref/os_ref in logged_in_os)
-		var/datum/extension/interactive/ntos/os = os_ref.resolve()
+		var/datum/extension/interactive/os/os = os_ref.resolve()
 		if(istype(os))
 			os.mail_received(received_message)
 		else

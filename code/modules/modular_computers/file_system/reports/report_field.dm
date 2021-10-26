@@ -33,12 +33,12 @@
 // Analogous to get_file_perms on reports.
 /datum/report_field/proc/get_perms(accesses, mob/user)
 	if(!accesses || (isghost(user) && check_rights(R_ADMIN, 0, user))) // For internal use/use by admin ghosts.
-		return (NTOS_READ_ACCESS | NTOS_WRITE_ACCESS)
+		return (OS_READ_ACCESS | OS_WRITE_ACCESS)
 	if(!LAZYLEN(read_access) || has_access_pattern(read_access, accesses))
-		. |= NTOS_READ_ACCESS
+		. |= OS_READ_ACCESS
 		
 		if(!LAZYLEN(write_access) || has_access_pattern(write_access, accesses))
-			. |= NTOS_WRITE_ACCESS
+			. |= OS_WRITE_ACCESS
 
 //Assumes the old and new fields are of the same type. Override if the field stores information differently.
 /datum/report_field/proc/copy_value(datum/report_field/old_field)
@@ -65,7 +65,7 @@
 	if(!ignore_value)
 		. += "\[row\]\[cell\]\[b\][display_name()]:\[/b\]"
 		var/field = ((with_fields && can_edit) ? "\[field\]" : "" )
-		if(!access || (get_perms(access, user) & NTOS_READ_ACCESS))
+		if(!access || (get_perms(access, user) & OS_READ_ACCESS))
 			. += (needs_big_box ? "\[/grid\][get_value()][field]\[grid\]" : "\[cell\][get_value()][field]")
 		else
 			. += "\[cell\]\[REDACTED\][field]"
@@ -77,8 +77,8 @@
 	var/dat = list()
 	if(given_access)
 		var/access_flags = get_perms(given_access, user)
-		dat["access"] = access_flags & NTOS_READ_ACCESS
-		dat["access_edit"] = access_flags & NTOS_WRITE_ACCESS
+		dat["access"] = access_flags & OS_READ_ACCESS
+		dat["access_edit"] = access_flags & OS_WRITE_ACCESS
 	dat["name"] = display_name()
 	dat["value"] = get_value()
 	dat["can_edit"] = can_edit

@@ -359,10 +359,10 @@ Subtypes
 		return "mv: Could not find file with name [mv_args[1]]."
 	var/copying = length(mv_args > 2) ? text2num(mv_args[3]) : FALSE
 	if(copying == TRUE)
-		if(!(F.get_file_perms(terminal.get_access(user), user) & NTOS_READ_ACCESS))
+		if(!(F.get_file_perms(terminal.get_access(user), user) & OS_READ_ACCESS))
 			return "mv: You do not have read access to this file."
 	else
-		if(!(F.get_file_perms(terminal.get_access(user), user) & NTOS_WRITE_ACCESS))
+		if(!(F.get_file_perms(terminal.get_access(user), user) & OS_WRITE_ACCESS))
 			return "mv: You do not have write access to this file. Write access is required when not copying files with mv"
 	// Find the destination.
 	var/datum/file_storage/dest
@@ -481,7 +481,7 @@ Subtypes
 	if(length(login_args) < 2)
 		return "login: Improper syntax, use login \[account login\] \[account password\]."
 
-	var/datum/extension/interactive/ntos/account_computer = terminal.get_account_computer()
+	var/datum/extension/interactive/os/account_computer = terminal.get_account_computer()
 	var/login_success = account_computer.login_account(login_args[1], login_args[2])
 	if(login_success)
 		return "login: Login successful. Welcome [login_args[1]]!"
@@ -494,7 +494,7 @@ Subtypes
 	needs_network =  TRUE
 
 /datum/terminal_command/logout/proper_input_entered(text, mob/user, datum/terminal/terminal)
-	var/datum/extension/interactive/ntos/account_computer = terminal.get_account_computer()
+	var/datum/extension/interactive/os/account_computer = terminal.get_account_computer()
 	account_computer.logout_account()
 	return "logout: Log out successful."
 
@@ -538,11 +538,11 @@ Subtypes
 		return "permmod: Invalid flag syntax. Use man command to learn more about permmod flag syntax."
 	
 	if(findtext(flags, "r"))
-		perm = NTOS_READ_ACCESS
+		perm = OS_READ_ACCESS
 	else if(findtext(flags, "w"))
-		perm = NTOS_WRITE_ACCESS 
+		perm = OS_WRITE_ACCESS 
 	else if(findtext(flags, "m"))
-		perm = NTOS_MOD_ACCESS
+		perm = OS_MOD_ACCESS
 	else
 		return "permmod: Invalid flag syntax. Use man command to learn more about permmod flag syntax."
 	var/datum/computer_network/network = terminal.computer.get_network()

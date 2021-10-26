@@ -88,7 +88,7 @@
 	if(!requires_access_to_run)
 		return TRUE
 
-	if(get_file_perms(accesses, user) & NTOS_READ_ACCESS)
+	if(get_file_perms(accesses, user) & OS_READ_ACCESS)
 		return TRUE
 
 	if(!istype(user))

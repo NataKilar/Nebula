@@ -45,7 +45,7 @@
 	var/datum/computer_file/data/F = disk.find_file_by_name(newname)
 	if(!F) //try to make one if it doesn't exist
 		return !!create_file(newname, data, file_type, metadata, disk)
-	if(!(F.get_file_perms(accesses, user) & NTOS_WRITE_ACCESS))
+	if(!(F.get_file_perms(accesses, user) & OS_WRITE_ACCESS))
 		return FALSE
 	//Try to save file, possibly won't fit size-wise
 	var/datum/computer_file/data/backup = F.clone()
@@ -76,7 +76,7 @@
 	if(!F)
 		return FALSE
 	
-	if(!(F.get_file_perms(accesses, user) & NTOS_READ_ACCESS))
+	if(!(F.get_file_perms(accesses, user) & OS_READ_ACCESS))
 		return FALSE
 
 	var/datum/computer_file/C = F.clone(1)
@@ -90,7 +90,7 @@
 	var/datum/computer_file/F = disk_from.find_file_by_name(filename)
 	if(!istype(F))
 		return FALSE
-	if(!(F.get_file_perms(accesses, user) & NTOS_READ_ACCESS))
+	if(!(F.get_file_perms(accesses, user) & OS_READ_ACCESS))
 		return FALSE
 	var/datum/computer_file/C = F.clone(0)
 	return disk_to.store_file(C)

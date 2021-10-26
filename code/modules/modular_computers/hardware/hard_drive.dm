@@ -100,7 +100,7 @@
 	if(!check_functionality())
 		return 0
 	
-	if(!(F.get_file_perms(accesses, user) & NTOS_WRITE_ACCESS))
+	if(!(F.get_file_perms(accesses, user) & OS_WRITE_ACCESS))
 		return 0
 	if(F in stored_files)
 		stored_files -= F

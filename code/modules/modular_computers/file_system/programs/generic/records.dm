@@ -66,7 +66,7 @@
 	var/datum/report_field/F = R.field_from_ID(field_ID)
 	if(!F)
 		return
-	if(!(F.get_perms(get_access(user),user) & NTOS_WRITE_ACCESS))
+	if(!(F.get_perms(get_access(user),user) & OS_WRITE_ACCESS))
 		to_chat(user, "<span class='notice'>\The [nano_host()] flashes an \"Access Denied\" warning.</span>")
 		return
 	F.ask_value(user)
@@ -84,7 +84,7 @@
 		var/ID = text2num(href_list["set_active"])
 		for(var/datum/computer_file/report/crew_record/R in get_records())
 			if(R.uid == ID)
-				if(R.get_file_perms(get_access(usr), usr) & NTOS_READ_ACCESS)
+				if(R.get_file_perms(get_access(usr), usr) & OS_READ_ACCESS)
 					active_record = R
 				else
 					to_chat(usr, SPAN_WARNING("Access Denied"))
@@ -116,12 +116,12 @@
 		if(!search)
 			return
 		for(var/datum/computer_file/report/crew_record/R in get_records())
-			if(!(R.get_file_perms(get_access(usr), usr) & NTOS_READ_ACCESS))
+			if(!(R.get_file_perms(get_access(usr), usr) & OS_READ_ACCESS))
 				continue
 			var/datum/report_field/field = R.field_from_name(field_name)
 			if(!field.searchable)
 				continue
-			if(!(field.get_perms(get_access(usr), usr) & NTOS_READ_ACCESS))
+			if(!(field.get_perms(get_access(usr), usr) & OS_READ_ACCESS))
 				continue
 			if(findtext(lowertext(field.get_value()), lowertext(search)))
 				active_record = R

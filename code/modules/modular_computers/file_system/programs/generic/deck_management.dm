@@ -103,7 +103,7 @@
 					L["name"] = report.display_name()
 					L["index"] = i
 					L["exists"] = locate(report) in selected_mission.other_reports
-					L["access_edit"] = report.get_file_perms(get_access(user), user) & NTOS_WRITE_ACCESS
+					L["access_edit"] = report.get_file_perms(get_access(user), user) & OS_WRITE_ACCESS
 					other_reports += list(L)
 				data["other_reports"] = other_reports
 
@@ -287,14 +287,14 @@
 			return 1
 		var/field_ID = text2num(href_list["ID"])
 		var/datum/report_field/field = selected_report.field_from_ID(field_ID)
-		if(!field || !(field.get_perms(get_access(user), user) & NTOS_WRITE_ACCESS))
+		if(!field || !(field.get_perms(get_access(user), user) & OS_WRITE_ACCESS))
 			return 1
 		field.ask_value(user) //Handles the remaining IO.
 		return 1
 	if(href_list["submit"])
 		if(!ensure_valid_mission() || !selected_report)
 			return 1
-		if(!(selected_report.get_file_perms(get_access(user), user) & NTOS_WRITE_ACCESS))
+		if(!(selected_report.get_file_perms(get_access(user), user) & OS_WRITE_ACCESS))
 			return 1
 		var/datum/shuttle_log/my_log = SSshuttle.shuttle_logs[selected_shuttle]
 		if(my_log.submit_report(selected_mission, selected_report, user))

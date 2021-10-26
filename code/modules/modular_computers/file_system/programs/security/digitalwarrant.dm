@@ -111,7 +111,7 @@ var/global/list/all_warrants
 		var/datum/report_field/F = active.field_from_ID(text2num(href_list["edit_field"]))
 		if(!F)
 			return
-		if(!(F.get_perms(get_access(usr), usr) & NTOS_WRITE_ACCESS))
+		if(!(F.get_perms(get_access(usr), usr) & OS_WRITE_ACCESS))
 			to_chat(usr, SPAN_WARNING("\The [nano_host()] flashes an \"Access Denied\" warning."))
 			return
 		F.ask_value(usr)

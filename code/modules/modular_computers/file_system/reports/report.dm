@@ -117,8 +117,8 @@ If the override option is set to 0, the access supplied will instead be added as
 	.["fields"] = list()
 	if(given_access)
 		var/access_flags = get_file_perms(given_access, user)
-		.["access"] = access_flags & NTOS_READ_ACCESS
-		.["access_edit"] = access_flags & NTOS_WRITE_ACCESS
+		.["access"] = access_flags & OS_READ_ACCESS
+		.["access_edit"] = access_flags & OS_WRITE_ACCESS
 	for(var/datum/report_field/field in fields)
 		.["fields"] += list(field.generate_nano_data(given_access, user))
 /*
@@ -164,12 +164,12 @@ You must have read access to have write access.
 */
 /datum/computer_file/report/get_file_perms(list/accesses, mob/user)
 	if(!accesses || (isghost(user) && check_rights(R_ADMIN, 0, user))) // For internal use/use by admin ghosts.
-		return (NTOS_READ_ACCESS | NTOS_WRITE_ACCESS | NTOS_MOD_ACCESS)
+		return (OS_READ_ACCESS | OS_WRITE_ACCESS | OS_MOD_ACCESS)
 	if(!LAZYLEN(read_access) || has_access_pattern(read_access, accesses))
-		. |= NTOS_READ_ACCESS
+		. |= OS_READ_ACCESS
 		
 		if(!LAZYLEN(write_access) || has_access_pattern(write_access, accesses))
-			. |= NTOS_WRITE_ACCESS
+			. |= OS_WRITE_ACCESS
 
 	if(!LAZYLEN(mod_access) || has_access_pattern(mod_access, accesses))
-		. |= NTOS_MOD_ACCESS
+		. |= OS_MOD_ACCESS
