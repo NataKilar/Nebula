@@ -2,10 +2,16 @@ var/global/obj/temp_reagents_holder = new
 
 /datum/reagents
 	var/primary_reagent
+
+	var/list/solid_volumes
+
+	var/list/liquid_volumes
+
 	var/list/reagent_volumes
 	var/list/reagent_data
 	var/total_volume = 0
 	var/maximum_volume = 120
+	var/temperature = T20C
 	var/atom/my_atom
 	var/cached_color
 
@@ -153,6 +159,35 @@ var/global/obj/temp_reagents_holder = new
 
 	return reaction_occured
 
+//Adds or removes thermal energy, a la gas mixtures. Returns the actual thermal energy change.
+/datum/reagents/proc/add_thermal_energy(var/thermal_energy)
+	if (total_volume == 0)
+		return 0
+
+	var/heat_capacity = heat_capacity()
+	if(heat_capacity <= 0)
+		return 0
+
+	if (thermal_energy < 0)
+		if (temperature < TCMB)
+			return 0
+		var/thermal_energy_limit = -(temperature - TCMB)*heat_capacity	//ensure temperature does not go below TCMB
+		thermal_energy = max( thermal_energy, thermal_energy_limit )	//thermal_energy and thermal_energy_limit are negative here.
+	temperature += thermal_energy/heat_capacity
+	return thermal_energy
+
+/datum/reagents/proc/heat_capacity()
+	. = 0
+	if(LAZYLEN(liquid_volumes))
+		for(var/l in liquid_volumes)
+			var/decl/material/mat = GET_DECL(l)
+			. += mat.liquid_specific_heat * liquid_volumes[l]
+
+	if(LAZYLEN(solid_volumes))
+		for(var/s in solid_volumes)
+			var/decl/material/mat = GET_DECL(s)
+			. += mat.solid_specific_heat * solid_volumes[s]
+
 /* Holder-to-chemical */
 /datum/reagents/proc/handle_update(var/safety)
 	update_total()
@@ -161,13 +196,31 @@ var/global/obj/temp_reagents_holder = new
 	if(my_atom)
 		my_atom.on_reagent_change()
 
-/datum/reagents/proc/add_reagent(var/reagent_type, var/amount, var/data = null, var/safety = 0, var/defer_update = FALSE)
+/datum/reagents/proc/add_reagent(var/reagent_type, var/amount, var/data = null, var/safety = 0, var/defer_update = FALSE, var/state, var/added_temp)
 
 	if(amount <= 0)
 		return FALSE
 
 	amount = min(amount, REAGENTS_FREE_SPACE(src))
 	var/decl/material/newreagent = GET_DECL(reagent_type)
+
+	if(!added_temp)
+		added_temp = temperature
+
+	if(!state)
+		state = newreagent.phase_at_temperature(added_temp)
+		if(state == MAT_PHASE_GAS)
+			state = MAT_PHASE_LIQUID
+	
+	var/check_state_change = FALSE
+	if(added_temp != temperature)
+		var/self_heat_capacity = heat_capacity()
+		var/giver_heat_capacity = (state == MAT_PHASE_SOLID ? newreagent.solid_specific_heat : newreagent.liquid_specific_heat)
+		var/combined_heat_capacity = giver_heat_capacity + self_heat_capacity
+		if(combined_heat_capacity != 0)
+			temperature = (added_temp * giver_heat_capacity + temperature * self_heat_capacity) / combined_heat_capacity
+			check_state_change = TRUE
+
 	LAZYINITLIST(reagent_volumes)
 	if(!reagent_volumes[reagent_type])
 		reagent_volumes[reagent_type] = amount
@@ -178,10 +231,20 @@ var/global/obj/temp_reagents_holder = new
 		reagent_volumes[reagent_type] += amount
 		if(!isnull(data))
 			LAZYSET(reagent_data, reagent_type, newreagent.mix_data(src, data, amount))
+	
+	switch(state)
+		if(MAT_PHASE_SOLID)
+			LAZYINITLIST(solid_volumes)
+			solid_volumes[reagent_type] += amount
+		if(MAT_PHASE_LIQUID)
+			LAZYINITLIST(liquid_volumes)
+			liquid_volumes[reagent_type] += amount
+
 	if(reagent_volumes.len > 1)
 		cached_color = null
 	UNSETEMPTY(reagent_volumes)
-
+	UNSETEMPTY(solid_volumes)
+	UNSETEMPTY(liquid_volumes)
 
 	if(defer_update)
 		total_volume += amount // approximation, call update_total() if deferring
@@ -189,11 +252,25 @@ var/global/obj/temp_reagents_holder = new
 		handle_update(safety)
 	return TRUE
 
-/datum/reagents/proc/remove_reagent(var/reagent_type, var/amount, var/safety = 0, var/defer_update = FALSE)
+/datum/reagents/proc/remove_reagent(var/reagent_type, var/amount, var/safety = 0, var/defer_update = FALSE, var/state)
 	if(!isnum(amount) || REAGENT_VOLUME(src, reagent_type) <= 0)
 		return FALSE
 
+	if(!state) // If a state isn't passed, remove from the state with the highest volume, with liquids having priority.
+		state = LIQUID_VOLUME(src, reagent_type) >= SOLID_VOLUME(src, reagent_type) ? MAT_PHASE_LIQUID : MAT_PHASE_SOLID
+	else if (state == MAT_PHASE_SOLID && SOLID_VOLUME(src, reagent_type) <= 0)
+		return FALSE
+	else if (state == MAT_PHASE_LIQUID && LIQUID_VOLUME(src, reagent_type) <= 0)
+		return FALSE
+
 	reagent_volumes[reagent_type] -= amount
+
+	switch(state)
+		if(MAT_PHASE_SOLID)
+			solid_volumes[reagent_type] -= amount
+		if(MAT_PHASE_LIQUID)
+			liquid_volumes[reagent_type] -= amount
+
 	if(reagent_volumes.len > 1 || reagent_volumes[reagent_type] <= 0)
 		cached_color = null
 
@@ -209,6 +286,10 @@ var/global/obj/temp_reagents_holder = new
 		var/amount = LAZYACCESS(reagent_volumes, reagent_type)
 		LAZYREMOVE(reagent_volumes, reagent_type)
 		LAZYREMOVE(reagent_data, reagent_type)
+
+		LAZYREMOVE(solid_volumes, reagent_type)
+		LAZYREMOVE(liquid_volumes, reagent_type)
+
 		if(primary_reagent == reagent_type)
 			primary_reagent = null
 		cached_color = null
@@ -545,6 +626,12 @@ var/global/obj/temp_reagents_holder = new
 		return
 
 	return trans_to_holder(target.reagents, amount, multiplier, copy, defer_update = defer_update)
+
+/datum/reagents/proc/state_change(var/datum/gas_mixture/mixture, var/entropy_dir = 1, var/linked = FALSE)
+	if(!mixture)
+		mixture = my_atom.return_air()
+	
+	handle_state_change(src, mixture, entropy_dir, linked)
 
 /* Atom reagent creation - use it all the time */
 

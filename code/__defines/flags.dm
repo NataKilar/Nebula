@@ -47,6 +47,7 @@ The latter will result in a linter warning and will not work correctly.
 #define ATOM_FLAG_NO_DISSOLVE             BITFLAG(10) // Bypasses solvent reactions in the container.
 #define ATOM_FLAG_NO_PHASE_CHANGE         BITFLAG(11) // Bypasses heating and cooling product reactions in the container.
 #define ATOM_FLAG_BLOCK_DIAGONAL_FACING   BITFLAG(12) // Atom cannot face non-cardinal directions.
+#define ATOM_FLAG_HEATS_ATMOSPHERE        BITFLAG(13) // Heating this atom will heat both its return_air() and its reagents
 
 #define ATOM_IS_OPEN_CONTAINER(A)         (A.atom_flags & ATOM_FLAG_OPEN_CONTAINER)
 

@@ -11,7 +11,7 @@
 	solvent_melt_dose = 10
 	boiling_point = 290 CELSIUS
 	melting_point = 10 CELSIUS
-	latent_heat = 612
+	heat_of_vaporization = 612
 	molar_mass = 0.098
 
 /decl/material/liquid/acid/hydrochloric //Like sulfuric, but less toxic and more acidic.
@@ -62,5 +62,5 @@
 	toxicity = 3
 	boiling_point = 56 CELSIUS
 	melting_point = -95 CELSIUS
-	latent_heat = 525
+	heat_of_vaporization = 525
 	molar_mass = 0.058

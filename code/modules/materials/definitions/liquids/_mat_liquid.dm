@@ -4,7 +4,7 @@
 	boiling_point = T100C
 	opacity = 0.5
 	molar_mass = 0.018 //water
-	latent_heat = 2258
+	heat_of_vaporization = 2258
 	abstract_type = /decl/material/liquid
 
 /decl/material/liquid/Initialize()

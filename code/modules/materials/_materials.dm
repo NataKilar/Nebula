@@ -123,10 +123,15 @@ INITIALIZE_IMMEDIATE(/obj/effect/gas_overlay)
 	var/melting_point = 1800
 	/// K, point that material will become a gas.
 	var/boiling_point = 3000
-	/// kJ/kg, enthalpy of vaporization
-	var/latent_heat = 7000
-	/// kg/mol,
+	/// J/g, enthalpy of vaporization
+	var/heat_of_vaporization = 7000
+	/// J/g, enthalpy of fusion
+	var/heat_of_fusion = 334
+	/// kg/mol
 	var/molar_mass = 0.06
+	/// g/ml
+	var/solid_density = 1
+	var/liquid_density = 1
 	/// Brute damage to a wall is divided by this value if the wall is reinforced by this material.
 	var/brute_armor = 2
 	/// Same as above, but for Burn damage type. If blank brute_armor's value is used.
@@ -153,6 +158,9 @@ INITIALIZE_IMMEDIATE(/obj/effect/gas_overlay)
 	var/max_fluid_opacity = FLUID_MAX_ALPHA
 	/// Point at which the fluid will proc turf interaction logic. Workaround for mops being ruined forever by 1u of anything else being added.
 	var/turf_touch_threshold = FLUID_QDEL_POINT
+
+	var/liquid_specific_heat = 4.18 // J/(ml*K)
+	var/solid_specific_heat = 1.91 //  J/(ml*K)
 
 	// Damage values.
 	var/hardness = MAT_VALUE_HARD            // Used for edge damage in weapons.
@@ -363,14 +371,16 @@ INITIALIZE_IMMEDIATE(/obj/effect/gas_overlay)
 
 //Clausius–Clapeyron relation
 /decl/material/proc/get_boiling_temp(var/pressure = ONE_ATMOSPHERE)
-	return (1 / (1/max(boiling_point, TCMB)) - ((R_IDEAL_GAS_EQUATION * log(pressure / ONE_ATMOSPHERE)) / (latent_heat * molar_mass)))
+	if(pressure == 0) // Could replace with triple point pressure defined on materials, since we don't have full phase sim.
+		return melting_point
+	return 1 / ((1/max(boiling_point, TCMB)) - ((R_IDEAL_GAS_EQUATION * log(pressure / ONE_ATMOSPHERE)) / (1000 * heat_of_vaporization * molar_mass)))
 
 // Returns the phase of the matterial at the given temperature and pressure
 /decl/material/proc/phase_at_temperature(var/temperature, var/pressure = ONE_ATMOSPHERE)
 	//#TODO: implement plasma temperature and do pressure checks
 	if(temperature >= get_boiling_temp(pressure))
 		return MAT_PHASE_GAS
-	else if(temperature >= heating_point)
+	else if(temperature >= melting_point)
 		return MAT_PHASE_LIQUID
 	return MAT_PHASE_SOLID
 

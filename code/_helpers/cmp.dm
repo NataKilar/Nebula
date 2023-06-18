@@ -111,3 +111,17 @@
 
 /proc/cmp_job_desc(var/datum/job/A, var/datum/job/B)
 	return B.get_occupations_tab_sort_score() - A.get_occupations_tab_sort_score()
+
+/proc/cmp_mat_boiling_point(var/decl/material/A, var/decl/material/B)
+	if(!istype(A))
+		A = GET_DECL(A)
+	if(!istype(B))
+		B = GET_DECL(B)
+	return A.boiling_point - B.boiling_point
+
+/proc/cmp_mat_melting_point(var/decl/material/A, var/decl/material/B)
+	if(!istype(A))
+		A = GET_DECL(A)
+	if(!istype(B))
+		B = GET_DECL(B)
+	return B.melting_point - A.melting_point

@@ -8,7 +8,7 @@
 	value = 0.15
 	burn_product = /decl/material/gas/carbon_dioxide
 	molar_mass =    0.032 // kg/mol
-	latent_heat = 213
+	heat_of_vaporization = 213
 	reflectiveness = 0
 	hardness = 0
 	weight = 1

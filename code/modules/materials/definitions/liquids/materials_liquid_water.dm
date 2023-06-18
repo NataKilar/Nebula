@@ -11,7 +11,7 @@
 	molar_mass = 0.020
 	boiling_point = 100 CELSIUS
 	melting_point = 0 CELSIUS
-	latent_heat = 2258
+	heat_of_vaporization = 2258
 	gas_condensation_point = 308.15 // 35C. Dew point is ~20C but this is better for gameplay considerations.
 	gas_symbol_html = "H<sub>2</sub>O"
 	gas_symbol = "H2O"
@@ -54,7 +54,7 @@
 	M.adjust_hydration(removed * 10)
 	affect_blood(M, alien, removed, holder)
 
-#define WATER_LATENT_HEAT 9500 // How much heat is removed when applied to a hot turf, in J/unit (9500 makes 120 u of water roughly equivalent to 2L
+#define WATER_heat_of_vaporization 9500 // How much heat is removed when applied to a hot turf, in J/unit (9500 makes 120 u of water roughly equivalent to 2L
 /decl/material/liquid/water/touch_turf(var/turf/T, var/amount, var/datum/reagents/holder)
 
 	..()
@@ -75,7 +75,7 @@
 
 	var/volume = REAGENT_VOLUME(holder, type)
 	if (environment && environment.temperature > min_temperature) // Abstracted as steam or something
-		var/removed_heat = between(0, volume * WATER_LATENT_HEAT, -environment.get_thermal_energy_change(min_temperature))
+		var/removed_heat = between(0, volume * WATER_heat_of_vaporization, -environment.get_thermal_energy_change(min_temperature))
 		environment.add_thermal_energy(-removed_heat)
 		if (prob(5) && environment && environment.temperature > T100C)
 			T.visible_message("<span class='warning'>The water sizzles as it lands on \the [T]!</span>")

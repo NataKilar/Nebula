@@ -17,6 +17,9 @@
 	//Cache of gas overlay objects
 	var/list/tile_overlay_cache
 
+	// Atom, if any, which contains the reagent holder this gas mixture will condense gas into at low enough temperatures.
+	var/atom/reagent_container
+
 /datum/gas_mixture/New(_volume = CELL_VOLUME, _temperature = 0, _group_multiplier = 1)
 	volume = _volume
 	temperature = _temperature
@@ -29,6 +32,12 @@
 
 /datum/gas_mixture/proc/get_total_moles()
 	return total_moles * group_multiplier
+
+/datum/gas_mixture/proc/get_volume()
+	if(!reagent_container || !reagent_container.reagents)
+		return volume
+
+	return reagent_container.reagents.maximum_volume - reagent_container.reagents.total_volume
 
 //Takes a gas string and the amount of moles to adjust by.  Calls update_values() if update isn't 0.
 /datum/gas_mixture/proc/adjust_gas(gasid, moles, update = 1)
@@ -135,6 +144,7 @@
 
 
 //Returns the heat capacity of the gas mix based on the specific heat of the gases.
+//Adds the heat capacity of the reagent holder if present.
 /datum/gas_mixture/proc/heat_capacity()
 	. = 0
 	for(var/g in gas)
@@ -142,6 +152,8 @@
 		. += mat.gas_specific_heat * gas[g]
 	. *= max(1, group_multiplier)
 
+	if(reagent_container && reagent_container.reagents)
+		. += reagent_container.reagents.heat_capacity()
 
 //Adds or removes thermal energy. Returns the actual thermal energy change, as in the case of removing energy we can't go below TCMB.
 /datum/gas_mixture/proc/add_thermal_energy(var/thermal_energy)
@@ -519,3 +531,381 @@
 	var/M = get_total_moles()
 	if(M)
 		return get_mass()/M
+
+
+#define STATE_CHANGE_EVAPORATING BITFLAG(0)
+#define STATE_CHANGE_MELTING BITFLAG(1)
+#define STATE_CHANGE_FREEZING BITFLAG(2)
+#define STATE_CHANGE_CONDENSING BITFLAG(3)
+
+/proc/handle_state_change(datum/reagents/reagents, datum/gas_mixture/gas_mixture, entropy_dir, linked)
+
+	// If the reagents and gas_mixture holders are linked, they are in thermal equilibrium with eachother. Changes in pressure will be calculated.
+
+	var/list/avail_state_changes = list() // Dictionary of /decl/material -> available state change flags.
+
+	var/heat_capacity = reagents.heat_capacity()
+
+	var/pressure = gas_mixture ? gas_mixture.return_pressure() : 0
+
+	var/list/state_change_temps = list() // Dictionary of list(/decl/material, ...) -> state change temperature
+	var/list/state_change_temps_text = list() // Dictionary of "[state_change_temp]" -> list(/decl/material)
+
+	var/curr_temperature = reagents.temperature
+
+	if(entropy_dir == 1) // Entropy is INCREASING. Pressure has decreased or temperature has increased. Check for melting and evaporation.
+
+		// We check liquid volumes first because we want materials which can evaporate to be prioritized over melting later.
+		for(var/l_mat in reagents.liquid_volumes)
+			var/decl/material/liquid_type = GET_DECL(l_mat)
+
+			var/boiling_point = liquid_type.get_boiling_temp(pressure)
+
+			if(curr_temperature < boiling_point) // During the following state changes entropy must decrease, so we can ignore this material.
+				continue
+
+			if(!state_change_temps_text["[boiling_point]"])
+				var/list/liquid_list = list(liquid_type)
+				state_change_temps_text["[boiling_point]"] = liquid_list
+				state_change_temps[liquid_list] = boiling_point
+			else
+				var/list/liquid_list = state_change_temps_text["[boiling_point]"]
+				liquid_list += liquid_type
+
+			avail_state_changes[l_mat] = STATE_CHANGE_EVAPORATING
+
+		for(var/s_mat in reagents.solid_volumes)
+			var/decl/material/solid_type = GET_DECL(s_mat)
+
+			var/melting_point = solid_type.melting_point
+
+			if(curr_temperature < melting_point)
+				continue
+
+			if(!state_change_temps_text["[melting_point]"])
+				var/list/solid_list = list(solid_type)
+				state_change_temps_text["[melting_point]"] = solid_list
+				state_change_temps[solid_list] = melting_point
+			else
+				var/list/solid_list = state_change_temps_text["[melting_point]"]
+				solid_list += solid_type
+
+			avail_state_changes[s_mat] = STATE_CHANGE_MELTING
+
+		// Sort the state changes from lowest temperature to highest.
+		state_change_temps = sortTim(state_change_temps, .proc/cmp_numeric_asc, associative = TRUE)
+		log_world("state change temps: [english_list(state_change_temps)]")
+		// If reagents and gas mixture are linked, then their available volumes are the same.
+		// As the state change progresses, we keep track of both the volume and total moles to calculate pressure.
+		var/curr_volume = reagents.maximum_volume - reagents.total_volume
+		var/curr_moles = gas_mixture?.total_moles
+
+		var/list/gas_changes = list() // /decl/material -> mols
+		var/list/liquid_changes = list() // /decl/materials -> units
+		var/list/solid_changes = list() // /decl/materials - > units
+		state_change_loop:
+			for(var/list/valid_mats in state_change_temps)
+				log_world("valid mats [english_list(valid_mats)]")
+				var/state_temp = state_change_temps[valid_mats]
+				log_world("state_temp [state_temp]")
+				for(var/decl/material/mat_type in valid_mats)
+
+					if(avail_state_changes[mat_type.type] == STATE_CHANGE_EVAPORATING)
+						if(linked)
+							if(curr_volume < 0)
+								continue // The reagent container is already over capacity, so let the container atom explode etc, and wait to evaporate.
+						log_world("evaporating")
+						var/actual_boiling_temp = linked ? mat_type.get_boiling_temp(pressure) : state_temp
+						log_world("act boil temp [actual_boiling_temp]")
+						if(actual_boiling_temp >= curr_temperature)
+							break state_change_loop
+
+						var/avail_energy = (curr_temperature - actual_boiling_temp) * heat_capacity
+						log_world("avail energy [avail_energy]")
+
+						// ((g / ml) / (1000 g / kg)) / (kg/mol) = mol/ml
+						var/moles_per_ml = (mat_type.liquid_density / 1000) / (mat_type.molar_mass)
+						// (J / K) / mL
+						var/heat_cap_delta = (mat_type.gas_specific_heat*moles_per_ml - (mat_type.liquid_specific_heat))
+
+						// A note on latent heat: This ignores the change in latent heat due to changes in pressure.
+						// Since the specific heats of substances also ignore changes in pressure, but boiling temperatures do not,
+						// this could theoretically cause issues with energy conservation, if state changes are performed in different environments.
+						var/latent_heat = mat_type.heat_of_vaporization * mat_type.liquid_density
+						var/removed_volume = min(avail_energy/latent_heat, reagents.liquid_volumes[mat_type.type])
+						var/added_moles = removed_volume*moles_per_ml
+						log_world("heat_cap_delta [heat_cap_delta]")
+						log_world("latent_heat [latent_heat]")
+						log_world("removed_volume [removed_volume]")
+						log_world("added_moles [added_moles]")
+
+						if(linked) // Heat capacity increases since both reagents and gas_mixture are accounted for.
+							heat_capacity += heat_cap_delta*removed_volume
+						else // Otherwise, heat capacity *decreases*.
+							heat_capacity -= mat_type.liquid_specific_heat*removed_volume
+
+						if(removed_volume <= reagents.liquid_volumes[mat_type.type])
+							curr_temperature = actual_boiling_temp // Incomplete or perfect evaporation, temperature must be the boiling point of the substance.
+						else
+							curr_temperature = actual_boiling_temp + (avail_energy - latent_heat*removed_volume)/heat_capacity
+
+						if(linked) // Recalculate pressure if linked.
+							curr_moles += added_moles
+							curr_volume -= removed_volume
+
+							pressure = curr_moles*curr_temperature*R_IDEAL_GAS_EQUATION/(curr_volume/1000)
+
+						gas_changes[mat_type.type] += curr_moles
+						liquid_changes[mat_type.type] -= removed_volume
+
+					else if(avail_state_changes[mat_type.type] == STATE_CHANGE_MELTING)
+						if(state_temp >= curr_temperature)
+							break state_change_loop
+
+						var/avail_energy = (curr_temperature - state_temp) * heat_capacity
+
+						var/ml_l_per_s =  mat_type.liquid_density / mat_type.solid_density
+
+						// (J / K) / mL
+						var/heat_cap_delta = (mat_type.liquid_specific_heat - mat_type.solid_specific_heat/ml_l_per_s)
+
+						var/latent_heat = mat_type.heat_of_fusion * mat_type.solid_density
+
+						var/removed_volume = min(avail_energy/latent_heat, reagents.solid_volumes[mat_type.type])
+						var/added_volume = removed_volume*ml_l_per_s
+
+						if(linked)
+							curr_volume += (added_volume - removed_volume)
+							pressure = curr_moles*curr_temperature*R_IDEAL_GAS_EQUATION/(curr_volume/1000)
+
+						heat_capacity += heat_cap_delta*added_volume
+
+						if(removed_volume <= reagents.solid_volumes[mat_type.type])
+							curr_temperature = state_temp // Incomplete or perfect melting, temperature must be the melting point of the substance.
+						else
+							curr_temperature = state_temp + (avail_energy - latent_heat*removed_volume)/heat_capacity
+
+						liquid_changes[mat_type.type] += added_volume
+						solid_changes[mat_type.type] -= removed_volume
+
+		if(linked)
+			gas_mixture.temperature = curr_temperature
+			for(var/gas_type in gas_changes)
+				gas_mixture.adjust_gas(gas_type, gas_changes[gas_type], FALSE)
+		else if(gas_mixture)
+			for(var/gas_type in gas_changes)
+				var/decl/material/gas_mat = GET_DECL(gas_type)
+				var/gas_temp = gas_mat.get_boiling_temp(pressure)
+				gas_mixture.adjust_gas_temp(gas_type, gas_changes[gas_type], gas_temp, FALSE)
+
+		log_world("L changes: [english_list(liquid_changes)]")
+		log_world("G changes: [english_list(gas_changes)]")
+
+		for(var/liquid_type in liquid_changes)
+			var/amt_changed = liquid_changes[liquid_type]
+			if(amt_changed >= 0)
+				reagents.add_reagent(liquid_type, amt_changed, null, TRUE, TRUE, MAT_PHASE_LIQUID)
+			else
+				reagents.remove_reagent(liquid_type, -amt_changed, TRUE, TRUE, MAT_PHASE_LIQUID)
+
+		for(var/solid_type in solid_changes)
+			var/amt_changed = solid_changes[solid_type]
+			if(amt_changed >= 0)
+				reagents.add_reagent(solid_type, amt_changed, null, TRUE, TRUE, MAT_PHASE_SOLID)
+			else
+				reagents.remove_reagent(solid_type, -amt_changed, TRUE, TRUE, MAT_PHASE_SOLID)
+
+		reagents.temperature = curr_temperature
+
+	else if(entropy_dir == -1) // Entropy is increasing. Pressure has decreased. Check for solidification, and condensation.
+		for(var/l_mat in reagents.liquid_volumes)
+			var/decl/material/liquid_type = GET_DECL(l_mat)
+
+			var/boiling_point = liquid_type.get_boiling_temp(pressure)
+
+			if(curr_temperature < boiling_point) // During the following state changes entropy must decrease, so we can ignore this material.
+				continue
+
+			if(!state_change_temps_text["[boiling_point]"])
+				var/list/liquid_list = list(liquid_type)
+				state_change_temps_text["[boiling_point]"] = liquid_list
+				state_change_temps[liquid_list] = boiling_point
+			else
+				var/list/liquid_list = state_change_temps_text["[boiling_point]"]
+				liquid_list += liquid_type
+
+			avail_state_changes[l_mat] = STATE_CHANGE_EVAPORATING
+
+		if(gas_mixture)
+			for(var/g_mat in gas_mixture.gas)
+				var/decl/material/gas_type = GET_DECL(s_mat)
+
+				var/condensation_point = gas_type.boiling_point
+
+				if(curr_temperature > condensation_point)
+					continue
+
+				if(!state_change_temps_text["[condensation_point]"])
+					var/list/gas_list = list(gas_type)
+					state_change_temps_text["[condensation_point]"] = gas_list
+					state_change_temps[gas_list] = condensation_point
+				else
+					var/list/gas_list = state_change_temps_text["[condensation_point]"]
+					gas_list += gas_type
+
+				avail_state_changes[s_mat] = STATE_CHANGE_CONDENSING
+
+		// Sort the state changes from highest temperature to lowest.
+		state_change_temps = sortTim(state_change_temps, .proc/cmp_numeric_dsc, associative = TRUE)
+
+		// If reagents and gas mixture are linked, then their available volumes are the same.
+		// As the state change progresses, we keep track of both the volume and total moles to calculate pressure.
+		var/curr_volume = reagents.maximum_volume - reagents.total_volume
+		var/curr_moles = gas_mixture?.total_moles
+
+		var/list/gas_changes = list() // /decl/material -> mols
+		var/list/liquid_changes = list() // /decl/materials -> units
+		var/list/solid_changes = list() // /decl/materials - > units
+		state_change_loop:
+			for(var/list/valid_mats in state_change_temps)
+				log_world("valid mats [english_list(valid_mats)]")
+				var/state_temp = state_change_temps[valid_mats]
+				log_world("state_temp [state_temp]")
+				for(var/decl/material/mat_type in valid_mats)
+					switch(avail_state_changes[mat_type.type])
+						if(STATE_CHANGE_FREEZING)
+							if(state_temp <= curr_temperature)
+								break state_change_loop
+
+							var/excess_energy = (state_temp - curr_temperature) * heat_capacity
+
+							var/ml_s_per_l =  mat_type.liquid_density / mat_type.solid_density
+
+							// (J / K) / mL
+							var/heat_cap_delta = (mat_type.liquid_specific_heat - mat_type.solid_specific_heat/ml_l_per_s)
+
+							var/latent_heat = mat_type.heat_of_fusion * mat_type.solid_density
+
+							var/removed_volume = min(avail_energy/latent_heat, reagents.solid_volumes[mat_type.type])
+							var/added_volume = removed_volume*ml_l_per_s
+
+							if(linked)
+								curr_volume += (added_volume - removed_volume)
+								pressure = curr_moles*curr_temperature*R_IDEAL_GAS_EQUATION/(curr_volume/1000)
+
+							heat_capacity += heat_cap_delta*added_volume
+
+							if(removed_volume <= reagents.solid_volumes[mat_type.type])
+								curr_temperature = state_temp // Incomplete or perfect melting, temperature must be the melting point of the substance.
+							else
+								curr_temperature = state_temp + (avail_energy - latent_heat*removed_volume)/heat_capacity
+
+							liquid_changes[mat_type.type] += added_volume
+							solid_changes[mat_type.type] -= removed_volume
+
+						if(STATE_CHANGE_EVAPORATING)
+							if(linked)
+								if(curr_volume < 0)
+									continue // The reagent container is already over capacity, so let the container atom explode etc, and wait to evaporate.
+							log_world("evaporating")
+							var/actual_boiling_temp = linked ? mat_type.get_boiling_temp(pressure) : state_temp
+							log_world("act boil temp [actual_boiling_temp]")
+							if(actual_boiling_temp >= curr_temperature)
+								break state_change_loop
+
+							var/avail_energy = (curr_temperature - actual_boiling_temp) * heat_capacity
+							log_world("avail energy [avail_energy]")
+
+							// ((g / ml) / (1000 g / kg)) / (kg/mol) = mol/ml
+							var/moles_per_ml = (mat_type.liquid_density / 1000) / (mat_type.molar_mass)
+							// (J / K) / mL
+							var/heat_cap_delta = (mat_type.gas_specific_heat*moles_per_ml - (mat_type.liquid_specific_heat))
+
+							// A note on latent heat: This ignores the change in latent heat due to changes in pressure.
+							// Since the specific heats of substances also ignore changes in pressure, but boiling temperatures do not,
+							// this could theoretically cause issues with energy conservation, if state changes are performed in different environments.
+							var/latent_heat = mat_type.heat_of_vaporization * mat_type.liquid_density
+							var/removed_volume = min(avail_energy/latent_heat, reagents.liquid_volumes[mat_type.type])
+							var/added_moles = removed_volume*moles_per_ml
+							log_world("heat_cap_delta [heat_cap_delta]")
+							log_world("latent_heat [latent_heat]")
+							log_world("removed_volume [removed_volume]")
+							log_world("added_moles [added_moles]")
+
+							if(linked) // Heat capacity increases since both reagents and gas_mixture are accounted for.
+								heat_capacity += heat_cap_delta*removed_volume
+							else // Otherwise, heat capacity *decreases*.
+								heat_capacity -= mat_type.liquid_specific_heat*removed_volume
+
+							if(removed_volume <= reagents.liquid_volumes[mat_type.type])
+								curr_temperature = actual_boiling_temp // Incomplete or perfect evaporation, temperature must be the boiling point of the substance.
+							else
+								curr_temperature = actual_boiling_temp + (avail_energy - latent_heat*removed_volume)/heat_capacity
+
+							if(linked) // Recalculate pressure if linked.
+								curr_moles += added_moles
+								curr_volume -= removed_volume
+
+								pressure = curr_moles*curr_temperature*R_IDEAL_GAS_EQUATION/(curr_volume/1000)
+
+							gas_changes[mat_type.type] += curr_moles
+							liquid_changes[mat_type.type] -= removed_volume
+
+						if(STATE_CHANGE_MELTING)
+							if(state_temp >= curr_temperature)
+								break state_change_loop
+
+							var/avail_energy = (curr_temperature - state_temp) * heat_capacity
+
+							var/ml_l_per_s =  mat_type.solid_density / mat_type.liquid_density
+
+							// (J / K) / mL
+							var/heat_cap_delta = (mat_type.liquid_specific_heat - mat_type.solid_specific_heat/ml_l_per_s)
+
+							var/latent_heat = mat_type.heat_of_fusion * mat_type.solid_density
+
+							var/removed_volume = min(avail_energy/latent_heat, reagents.solid_volumes[mat_type.type])
+							var/added_volume = removed_volume*ml_l_per_s
+
+							if(linked)
+								curr_volume += (added_volume - removed_volume)
+								pressure = curr_moles*curr_temperature*R_IDEAL_GAS_EQUATION/(curr_volume/1000)
+
+							heat_capacity += heat_cap_delta*added_volume
+
+							if(removed_volume <= reagents.solid_volumes[mat_type.type])
+								curr_temperature = state_temp // Incomplete or perfect melting, temperature must be the melting point of the substance.
+							else
+								curr_temperature = state_temp + (avail_energy - latent_heat*removed_volume)/heat_capacity
+
+							liquid_changes[mat_type.type] += added_volume
+							solid_changes[mat_type.type] -= removed_volume
+
+		if(linked)
+			gas_mixture.temperature = curr_temperature
+			for(var/gas_type in gas_changes)
+				gas_mixture.adjust_gas(gas_type, gas_changes[gas_type], FALSE)
+		else if(gas_mixture)
+			for(var/gas_type in gas_changes)
+				var/decl/material/gas_mat = GET_DECL(gas_type)
+				var/gas_temp = gas_mat.get_boiling_temp(pressure)
+				gas_mixture.adjust_gas_temp(gas_type, gas_changes[gas_type], gas_temp, FALSE)
+
+		log_world("L changes: [english_list(liquid_changes)]")
+		log_world("G changes: [english_list(gas_changes)]")
+
+		for(var/liquid_type in liquid_changes)
+			var/amt_changed = liquid_changes[liquid_type]
+			if(amt_changed >= 0)
+				reagents.add_reagent(liquid_type, amt_changed, null, TRUE, TRUE, MAT_PHASE_LIQUID)
+			else
+				reagents.remove_reagent(liquid_type, -amt_changed, TRUE, TRUE, MAT_PHASE_LIQUID)
+
+		for(var/solid_type in solid_changes)
+			var/amt_changed = solid_changes[solid_type]
+			if(amt_changed >= 0)
+				reagents.add_reagent(solid_type, amt_changed, null, TRUE, TRUE, MAT_PHASE_SOLID)
+			else
+				reagents.remove_reagent(solid_type, -amt_changed, TRUE, TRUE, MAT_PHASE_SOLID)
+
+		reagents.temperature = curr_temperature

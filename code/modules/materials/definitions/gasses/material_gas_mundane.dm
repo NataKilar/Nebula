@@ -5,7 +5,7 @@
 	flags = MAT_FLAG_FUSION_FUEL
 	gas_specific_heat = 20	
 	molar_mass = 0.032	
-	latent_heat = 213
+	heat_of_vaporization = 213
 	boiling_point = -183 CELSIUS
 	gas_flags = XGM_GAS_OXIDIZER
 	gas_symbol_html = "O<sub>2</sub>"
@@ -20,7 +20,7 @@
 	flags = MAT_FLAG_FUSION_FUEL
 	gas_specific_heat = 80
 	molar_mass = 0.004
-	latent_heat = 21
+	heat_of_vaporization = 21
 	boiling_point = -269 CELSIUS
 	gas_symbol_html = "He"
 	gas_symbol = "He"
@@ -38,7 +38,7 @@
 	lore_text = "A byproduct of respiration."
 	gas_specific_heat = 30	
 	molar_mass = 0.044
-	latent_heat = 380
+	heat_of_vaporization = 380
 	boiling_point = -78 CELSIUS	
 	gas_symbol_html = "CO<sub>2</sub>"
 	gas_symbol = "CO2"
@@ -49,7 +49,7 @@
 	lore_text = "A highly poisonous gas."
 	gas_specific_heat = 30
 	molar_mass = 0.028
-	latent_heat = 216
+	heat_of_vaporization = 216
 	boiling_point = -192 CELSIUS	
 	gas_symbol_html = "CO"
 	gas_symbol = "CO"
@@ -92,7 +92,7 @@
 	lore_text = "A once-popular fumigant and weedkiller."
 	gas_specific_heat = 42.59 
 	molar_mass = 0.095
-	latent_heat = 253
+	heat_of_vaporization = 253
 	boiling_point = 4 CELSIUS		  
 	gas_symbol_html = "CH<sub>3</sub>Br"
 	gas_symbol = "CH3Br"
@@ -121,7 +121,7 @@
 	lore_text = "A mild sedative. Also known as laughing gas."
 	gas_specific_heat = 40	
 	molar_mass = 0.044
-	latent_heat = 376
+	heat_of_vaporization = 376
 	boiling_point = -90 CELSIUS	
 	gas_tile_overlay = "sleeping_agent"
 	gas_overlay_limit = 1
@@ -151,7 +151,7 @@
 	lore_text = "An ubiquitous noble gas."
 	gas_specific_heat = 20	
 	molar_mass = 0.028
-	latent_heat = 199
+	heat_of_vaporization = 199
 	boiling_point = -195 CELSIUS
 	gas_symbol_html = "N<sub>2</sub>"
 	gas_symbol = "N2"
@@ -163,7 +163,7 @@
 	color = "#ca6409"
 	gas_specific_heat = 37
 	molar_mass = 0.054
-	latent_heat = 272
+	heat_of_vaporization = 272
 	boiling_point = -9 CELSIUS
 	gas_flags = XGM_GAS_OXIDIZER
 	gas_symbol_html = "NO<sub>2</sub>"
@@ -174,7 +174,7 @@
 	uid = "gas_nitric_oxide"
 	gas_specific_heat = 10
 	molar_mass = 0.030
-	latent_heat = 410
+	heat_of_vaporization = 410
 	boiling_point = -152 CELSIUS
 	gas_flags = XGM_GAS_OXIDIZER
 	gas_symbol_html = "NO"
@@ -185,7 +185,7 @@
 	uid = "gas_methane"
 	gas_specific_heat = 30	
 	molar_mass = 0.016
-	latent_heat = 510
+	heat_of_vaporization = 510
 	boiling_point = -162 CELSIUS
 	gas_flags = XGM_GAS_FUEL
 	gas_symbol_html = "CH<sub>4</sub>"
@@ -197,7 +197,7 @@
 	lore_text = "Just when you need it, all of your supplies argon."
 	gas_specific_heat = 10
 	molar_mass = 0.039
-	latent_heat = 163
+	heat_of_vaporization = 163
 	boiling_point = -185 CELSIUS
 	gas_symbol_html = "Ar"
 	gas_symbol = "Ar"
@@ -209,7 +209,7 @@
 	uid = "gas_krypton"
 	gas_specific_heat = 5
 	molar_mass = 0.083
-	latent_heat = 108
+	heat_of_vaporization = 108
 	boiling_point = -153 CELSIUS
 	gas_symbol_html = "Kr"
 	gas_symbol = "Kr"
@@ -220,7 +220,7 @@
 	uid = "gas_neon"
 	gas_specific_heat = 20
 	molar_mass = 0.02
-	latent_heat = 86
+	heat_of_vaporization = 86
 	boiling_point = -246 CELSIUS
 	gas_symbol_html = "Ne"
 	gas_symbol = "Ne"
@@ -231,7 +231,7 @@
 	uid = "gas_ammonia"
 	gas_specific_heat = 20
 	molar_mass = 0.017
-	latent_heat = 1370
+	heat_of_vaporization = 1370
 	boiling_point = -33 CELSIUS
 	gas_symbol_html = "NH<sub>3</sub>"
 	gas_symbol = "NH3"
@@ -248,7 +248,7 @@
 	uid = "gas_xenon"
 	gas_specific_heat = 3
 	molar_mass = 0.131
-	latent_heat = 96
+	heat_of_vaporization = 96
 	boiling_point = -108 CELSIUS
 	gas_symbol_html = "Xe"
 	gas_symbol = "Xe"
@@ -273,7 +273,7 @@
 	gas_overlay_limit = 0.5
 	gas_specific_heat = 5
 	molar_mass = 0.071 //Cl2 gas
-	latent_heat = 254
+	heat_of_vaporization = 254
 	boiling_point = -34 CELSIUS
 	gas_flags = XGM_GAS_CONTAMINANT
 	gas_symbol_html = "Cl<sub>2</sub>"
@@ -289,7 +289,7 @@
 	uid = "gas_sulfur_dioxide"
 	gas_specific_heat = 30
 	molar_mass = 0.064
-	latent_heat = 389
+	heat_of_vaporization = 389
 	boiling_point = -10 CELSIUS
 	gas_symbol_html = "SO<sub>2</sub>"
 	gas_symbol = "SO2"
@@ -308,7 +308,7 @@
 	construction_difficulty = MAT_VALUE_HARD_DIY
 	gas_specific_heat = 100
 	molar_mass = 0.002
-	latent_heat = 454
+	heat_of_vaporization = 454
 	boiling_point = -252 CELSIUS
 	gas_flags = XGM_GAS_FUEL
 	burn_product = /decl/material/liquid/water
