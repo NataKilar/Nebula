@@ -89,6 +89,13 @@
 
 	return parent.air
 
+/obj/machinery/atmospherics/pipe/return_reagents()
+	if(!parent)
+		parent = new /datum/pipeline()
+		parant.build_pipeline(src)
+
+	return parent.liquid
+
 /obj/machinery/atmospherics/pipe/build_network()
 	if(!parent)
 		parent = new /datum/pipeline()

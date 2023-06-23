@@ -197,6 +197,9 @@ Pipelines + Other Objects -> Pipe network
 		if(air)
 			LAZYDISTINCTADD(., air)
 
+/obj/machinery/atmospherics/proc/return_liquid()
+	return reagents
+
 // implement internally
 /obj/machinery/atmospherics/proc/air_in_dir(direction)
 

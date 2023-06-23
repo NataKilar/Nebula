@@ -3,6 +3,12 @@
 /datum/reagents/pipeline
 	var/datum/pipeline/pipeline
 
+/datum/reagents/pipeline/update_total()
+	var/old_volume = total_volume
+	. = ..()
+	if(total_volume != old_volume)
+		pipeline.update_air_volume(FALSE)
+
 /datum/reagents/pipeline/Destroy()
 	if(pipeline)
 		if(pipeline.liquid == src)
@@ -13,6 +19,8 @@
 /datum/pipeline
 	var/datum/gas_mixture/air
 	var/datum/reagents/pipeline/liquid // Needs to be an atom for reagent holder to work.
+
+	var/total_volume = 0
 
 	var/list/obj/machinery/atmospherics/pipe/members
 	var/list/obj/machinery/atmospherics/pipe/edges //Used for building networks
@@ -130,8 +138,28 @@
 
 			possible_expansions -= borderline
 
-	air.volume = volume
+	total_volume = volume
+	air.volume = total_volume - (liquid.total_volume / 1000)
 	liquid.maximum_volume = length(members) * REAGENT_UNITS_PER_PIPE
+
+#define VOLUME_THRESHOLD 10
+
+/datum/pipeline/proc/update_air_volume(simulated)
+	var/datum/pipe_network/out_network = return_network()
+
+	var/adj_liquid_volume = liquid.total_volume / 1000
+
+	var/dumped_volume = total_volume -
+
+
+	var/datum/gas_mixture/gas_dump
+	// We're checking if there's a large enough volume that can accept the gas being pushed out of the system without being noticably compressed.
+	for(var/datum/gas_mixture/candidate in out_network?.gases)
+		if(candidate.volume >= adj_liquid_volume)
+
+
+
+#undef VOLUME_THRESHOLD
 
 /datum/pipeline/proc/network_expand(datum/pipe_network/new_network, obj/machinery/atmospherics/pipe/reference)
 	if(new_network.line_members.Find(src))

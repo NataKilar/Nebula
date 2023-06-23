@@ -491,6 +491,41 @@
 /datum/gas_mixture/proc/share_space(datum/gas_mixture/unsim_air)
 	return share_ratio(unsim_air, unsim_air.group_multiplier, max(1, max(group_multiplier + 3, 1) + unsim_air.group_multiplier), one_way = 1)
 
+// Adjusts the volume of the gas mixture. Returns the work required, assuming adiabatic compression.
+// TODO: Respect group multiplier
+/datum/gas_mixture/proc/adjust_volume(new_volume, closed_system = TRUE, allow_zero = FALSE)
+	if(new_volume < 0)
+		PRINT_STACK_TRACE("Attempted to set a gas mixture's volume to a disallowed value: [new_volume]!")
+	if(new_volume == 0)
+		if(!allow_zero)
+			PRINT_STACK_TRACE("Attempted to set a gas mixture's volume to zero!")
+		else
+			// Whatever is calling this needs to take care of putting the gas somewhere else.
+			volume = new_volume
+			return
+
+	// The gas is being compressed/expanded, not just pushed elsewhere (for which we ignore the required work).
+	if(closed_system)
+		// Gamma factor C_p / C_v. We'll assume the heat capacity of a gas is C_p
+		var/heat_cap = heat_capacity()
+		var/pressure = return_pressure()
+		if(heat_cap)
+			var/gamma = heat_cap / (heat_cap - total_moles*R_IDEAL_GAS_EQUATION)
+
+			var/volume_ratio = (volume/new_volume)
+			var/gamma_ratio = volume_ratio**gamma
+
+			var/new_pressure = pressure*gamma_ratio
+
+			var/work_done = (1/(1 - gamma))*(new_pressure*new_volume - pressure*volume)
+
+			temperature = (new_pressure/pressure)*volume_ratio*temperature
+
+			volume = new_volume
+			return work_done
+
+	volume = new_volume
+
 //Equalizes a list of gas mixtures.  Used for pipe networks.
 /proc/equalize_gases(list/datum/gas_mixture/gases)
 	//Calculate totals from individual components

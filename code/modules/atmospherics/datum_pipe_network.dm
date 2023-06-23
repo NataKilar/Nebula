@@ -2,8 +2,15 @@
 	var/list/datum/gas_mixture/gases = list() //All of the gas_mixtures continuously connected in this network
 	var/volume = 0	//caches the total volume for atmos machines to use in gas calculations
 
+
+	var/piepline_volume = 0 // Cache the total gaseous volume of pipeplines. Once this is zero, liquids can be equalized.
+
 	var/list/obj/machinery/atmospherics/normal_members = list()
 	var/list/datum/pipeline/line_members = list()
+
+	// Pipelines with liquid.
+	var/list/datum/pipeline/liquid_members = list()
+
 		//membership roster to go through for updates and what not
 	var/list/leaks = list()
 	var/update = 1
