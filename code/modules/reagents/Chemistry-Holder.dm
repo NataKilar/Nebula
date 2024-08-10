@@ -73,6 +73,8 @@ var/global/datum/reagents/sink/infinite_reagent_sink = new
 	var/atom/my_atom
 	var/cached_color
 
+	var/temperature
+
 /datum/reagents/New(var/maximum_volume = 120, var/atom/my_atom)
 	src.maximum_volume = maximum_volume
 	src.my_atom = my_atom

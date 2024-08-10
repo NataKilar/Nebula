@@ -166,14 +166,8 @@ INITIALIZE_IMMEDIATE(/obj/effect/gas_overlay)
 	var/boiling_point = 3000
 	/// Set automatically if null based on ignition, boiling and melting point
 	var/temperature_damage_threshold
-	/// kJ/kg, enthalpy of vaporization
-	var/latent_heat = 7000
 	/// kg/mol
 	var/molar_mass = 0.06
-	/// g/ml
-	var/liquid_density = 0.997
-	/// g/ml
-	var/solid_density = 0.9168
 	/// Brute damage to a wall is divided by this value if the wall is reinforced by this material.
 	var/brute_armor = 2
 	/// Same as above, but for Burn damage type. If blank brute_armor's value is used.
@@ -250,6 +244,17 @@ INITIALIZE_IMMEDIATE(/obj/effect/gas_overlay)
 	var/gas_tile_overlay = "generic"
 	var/gas_condensation_point = null
 	var/gas_metabolically_inert = FALSE // If false, material will move into the bloodstream when breathed.
+
+	// Liquid behavior.
+	var/liquid_specific_heat = 4.187 // J/(g*k)
+	var/fusion_heat = 333.55         // J/g, enthalpy of fusion (not to be confused with nuclear fusion)
+	var/vaporization_heat = 7000     // J/g, enthalpy of vaporization
+	var/liquid_density = 0.997       // g/ml
+
+	// Solid behavior.
+	var/solid_specific_heat = 2.108 // J/(g*K)
+	var/solid_density = 0.917	    // g/ml
+
 	// Armor values generated from properties
 	var/list/basic_armor
 	var/armor_degradation_speed

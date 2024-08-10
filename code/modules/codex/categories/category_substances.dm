@@ -120,6 +120,18 @@
 			material_info += "<li>It condenses at [mat.gas_condensation_point] K.</li>"
 		material_info += "</ul>"
 
+		material_info += "As a liquid, it has the following properties:<ul>"
+		material_info += "<li>It has a specific heat of [mat.liquid_specific_heat] J/(g*K).</li>"
+		material_info += "<li>It has a density of [mat.liquid_density] g/mL.</li>"
+		material_info += "<li>It has a enthalpy of vaporization of [mat.vaporization_heat] J/g."
+		material_info += "<li>It has a enthalpy of fusion of [mat.fusion_heat] J/g."
+		material_info += "</ul>"
+
+		material_info += "As a solid, it has the following properties:<ul>"
+		material_info += "<li>It has a specific heat of [mat.solid_specific_heat] J/(g*K).</li>"
+		material_info += "<li>It has a density of [mat.solid_density] g/mL.</li>"
+		material_info += "</ul>"
+
 		material_info += "As a building or crafting material, it has the following properties:<ul>"
 		if(mat.brute_armor < 2)
 			material_info += "<li>It is weak to physical impacts.</li>"
