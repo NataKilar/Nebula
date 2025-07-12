@@ -17,7 +17,7 @@
 	)
 	neutron_absorption = 20
 
-	solid_specific_heat = 0.960
+	solid_specific_heat = 0.96
 	solid_density = 2.34
 
 	liquid_density = 2.08
@@ -38,7 +38,7 @@
 	narcosis = 5
 
 	solid_specific_heat = 3.58
-	solid_density = 0.534
+	solid_density = 0.53
 
 	liquid_density = 0.512
 	vaporization_heat = 19593
@@ -50,7 +50,6 @@
 	lore_text = "A chemical element, the building block of life."
 	melting_point = 4300
 	boiling_point = 4300
-	molar_mass =
 	taste_description = "sour chalk"
 	taste_mult = 1.5
 	color = "#1c1300"
@@ -58,7 +57,7 @@
 	dirtiness = 30
 
 	// Values taken for graphite
-	solid_specific_heat = 0.709
+	solid_specific_heat = 0.71
 	solid_density = 2.26
 
 	// Under typical conditions, carbon sublimes rather than melting
@@ -96,7 +95,7 @@
 	value = 0.5
 
 	// Despite the color, all of these values are from white phosphorus.
-	solid_density = 1.823
+	solid_density = 1.82
 	solid_specific_heat = 0.77
 
 	liquid_density = 1.74
@@ -113,7 +112,7 @@
 	color = "#a8a8a8"
 	value = 0.5
 
-	solid_density = 2.329
+	solid_density = 2.33
 	solid_specific_heat = 0.71
 
 	liquid_density = 2.57
@@ -168,10 +167,10 @@
 	color = "#a0a0a0"
 	value = 0.5
 
-	solid_density = 0.859
+	solid_density = 0.86
 	solid_specific_heat = 0.75
 
-	liquid_density = 0.829
+	liquid_density = 0.83
 
 	fusion_heat = 59.59
 	vaporization_heat = 1966.84

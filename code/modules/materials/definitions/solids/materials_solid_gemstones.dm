@@ -19,6 +19,9 @@
 	reflectiveness          = MAT_VALUE_VERY_SHINY
 	construction_difficulty = MAT_VALUE_VERY_HARD_DIY
 
+	solid_density = 4.05 // Sapphire
+	solid_specific_heat = 0.47 // No data
+
 /decl/material/solid/gemstone/diamond
 	name                    = "diamond"
 	uid                     = "solid_diamond"
@@ -40,6 +43,9 @@
 	rich_material_weight    = 5
 	ore_type_value          = ORE_PRECIOUS
 	ore_data_value          = 2
+
+	solid_specific_heat = 0.47
+	solid_density = 3.51
 
 /decl/material/solid/gemstone/crystal
 	name              = "crystal"

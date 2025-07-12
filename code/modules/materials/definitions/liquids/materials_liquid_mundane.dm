@@ -5,6 +5,7 @@
 	taste_description = "slime"
 	color = COLOR_LIQUID_WATER
 	opacity = 0.5
+	liquid_density = 1.4
 	exoplanet_rarity_gas = MAT_RARITY_NOWHERE
 
 /decl/material/liquid/mucus/handle_stain_dry(obj/effect/decal/cleanable/blood/stain)

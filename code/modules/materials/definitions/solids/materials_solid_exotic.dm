@@ -31,6 +31,8 @@
 	exoplanet_rarity_plant = MAT_RARITY_EXOTIC
 	exoplanet_rarity_gas = MAT_RARITY_NOWHERE
 
+	solid_density = 4.3
+
 /decl/material/solid/exotic_matter
 	name = "exotic matter"
 	uid = "solid_exotic_matter"

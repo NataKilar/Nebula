@@ -225,6 +225,9 @@
 	allergen_flags = ALLERGEN_MEAT
 	exoplanet_rarity_plant = MAT_RARITY_EXOTIC
 
+	solid_density = 1.21
+	solid_specific_heat = 1.26
+
 // Stub to stop eggs melting while being boiled.
 /decl/material/solid/organic/bone/eggshell
 	name                   = "eggshell"

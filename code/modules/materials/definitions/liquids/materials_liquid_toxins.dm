@@ -24,6 +24,9 @@
 	exoplanet_rarity_plant = MAT_RARITY_UNCOMMON
 	exoplanet_rarity_gas = MAT_RARITY_EXOTIC
 
+	liquid_density = 1.13
+	liquid_specific_heat = 0.76
+
 /decl/material/liquid/amatoxin
 	name = "amatoxin"
 	uid = "liquid_amatoxin"
@@ -106,6 +109,9 @@
 	exoplanet_rarity_plant = MAT_RARITY_UNCOMMON
 	exoplanet_rarity_gas = MAT_RARITY_EXOTIC
 
+	liquid_density = 0.69
+	liquid_specific_heat = 2.6
+
 /decl/material/liquid/cyanide/affect_blood(var/mob/living/M, var/removed, var/datum/reagents/holder)
 	..()
 	ADJ_STATUS(M, STAT_ASLEEP, 1)
@@ -184,6 +190,10 @@
 	metabolism = REM * 0.25
 	exoplanet_rarity_gas = MAT_RARITY_EXOTIC
 
+	// Ammonium nitrate solution, presumably. Should be made into a solid once solutions are in.
+	liquid_density = 1.73
+	liquid_specific_heat = 1.74
+
 /decl/material/liquid/fertilizer/compost
 	name = "compost"
 	uid = "liquid_compost"
@@ -208,6 +218,9 @@
 	exoplanet_rarity_plant = MAT_RARITY_NOWHERE
 	exoplanet_rarity_gas = MAT_RARITY_NOWHERE
 
+	liquid_density = 1.6
+	liquid_specific_heat = 1.42
+
 /decl/material/liquid/tar
 	name = "tar"
 	solid_name = "asphalt"
@@ -227,6 +240,9 @@
 	taste_mult = 1.2
 	metabolism = REM * 0.25
 	exoplanet_rarity_gas = MAT_RARITY_NOWHERE
+
+	liquid_density = 1.35 // Not actually that dense!
+	liquid_specific_heat = 0.35
 
 /decl/material/liquid/hair_remover
 	name = "hair remover"
@@ -298,6 +314,9 @@
 	taste_mult = 1.2
 	metabolism = REM * 0.25
 
+	liquid_specific_heat = 0.95
+	liquid_density = 3.12
+
 /decl/material/liquid/mercury
 	name = "mercury"
 	uid = "liquid_mercury"
@@ -308,3 +327,6 @@
 	color = "#484848"
 	value = 0.5
 	narcosis = 5
+
+	liquid_specific_heat = 139.5
+	liquid_density = 13.53

@@ -8,6 +8,10 @@
 	compost_value = 1
 	exoplanet_rarity_gas = MAT_RARITY_NOWHERE
 	exoplanet_rarity_plant = MAT_RARITY_UNCOMMON
+
+	solid_density = 0.86 // Organics will generally float
+	solid_specific_heat = 0.99
+
 /* TODO: burn products for solids
 	bakes_into_at_temperature = T0C+500
 	bakes_into_material = /decl/material/solid/carbon
@@ -106,6 +110,9 @@
 	sound_dropped = 'sound/foley/paperpickup1.ogg'
 	compost_value = 0.8
 
+	solid_density = 0.43
+	solid_specific_heat = 0.21
+
 /decl/material/solid/organic/paper
 	name                    = "paper"
 	uid                     = "solid_paper"
@@ -162,6 +169,9 @@
 	compost_value = 0.8
 	has_textile_fibers = TRUE
 	paint_verb = "dyed"
+
+	solid_density = 0.9
+	solid_specific_heat = 1.32
 
 /decl/material/solid/organic/cloth/hemp
 	name           = "hemp"

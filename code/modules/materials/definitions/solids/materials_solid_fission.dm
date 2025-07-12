@@ -27,7 +27,9 @@
 	fission_heat = 35000
 	fission_energy = 4000
 	neutron_absorption = 4
-	
+
+	solid_density = 19.05
+	solid_specific_heat = 0.12
 
 /decl/material/solid/metal/neptunium // Np-237.
 	name = "neptunium"
@@ -55,6 +57,9 @@
 	fission_products = list(
 		/decl/material/solid/metal/fission_byproduct = 0.2
 	)
+
+	solid_density = 20.45
+	solid_specific_heat = 0.12 // No data
 
 /decl/material/solid/metal/plutonium
 	name = "plutonium"
@@ -85,6 +90,9 @@
 	fission_heat = 60000
 	fission_energy = 5000
 
+	solid_density = 19.82
+	solid_specific_heat = 0.12 // No data
+
 // Catch-all for the nasty byproducts of fission reactions.
 /decl/material/solid/metal/fission_byproduct
 	name = "nuclear waste"
@@ -106,3 +114,6 @@
 		/decl/material/solid/metal/radium = 0.5,
 		/decl/material/solid/lithium = 0.5
 	)
+
+	solid_density = 4.21
+	solid_specific_heat = 0.1

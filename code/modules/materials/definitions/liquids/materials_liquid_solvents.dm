@@ -11,9 +11,13 @@
 	solvent_melt_dose = 10
 	melting_point = 284
 	boiling_point = 611
-	latent_heat = 612
+	vaporization_heat = 612
+
+	liquid_density = 1.83
+	liquid_specific_heat = 1.42
 	molar_mass = 0.098
 
+// Eventually this will be a gas.
 /decl/material/liquid/acid/hydrochloric //Like sulfuric, but less toxic and more acidic.
 	name = "hydrochloric acid"
 	uid = "liquid_hydrochloric_acid"
@@ -28,6 +32,9 @@
 	melting_point = 160
 	molar_mass = 0.036
 
+	liquid_density = 1.49
+	liquid_specific_heat = 1.58
+
 /decl/material/liquid/acid/polyacid
 	name = "polytrinic acid"
 	uid = "liquid_polytrinic_acid"
@@ -41,6 +48,9 @@
 	exoplanet_rarity_plant = MAT_RARITY_UNCOMMON
 	exoplanet_rarity_gas = MAT_RARITY_UNCOMMON
 
+	liquid_density = 1.8
+	liquid_specific_heat = 0.68
+
 /decl/material/liquid/acid/stomach
 	name = "stomach acid"
 	uid = "liquid_stomach_acid"
@@ -51,6 +61,10 @@
 	value = 0
 	exoplanet_rarity_plant = MAT_RARITY_UNCOMMON
 	exoplanet_rarity_gas = MAT_RARITY_EXOTIC
+
+	// This is essentially just hyrochloric acid
+	liquid_density = 1.49
+	liquid_specific_heat = 1.58
 
 /decl/material/liquid/acetone
 	name = "acetone"
@@ -64,5 +78,8 @@
 	toxicity = 3
 	boiling_point = 330
 	melting_point = 179
-	latent_heat = 525
+	vaporization_heat = 525
 	molar_mass = 0.058
+
+	liquid_density = 0.79
+	liquid_specific_heat = 1.54

@@ -246,7 +246,7 @@ INITIALIZE_IMMEDIATE(/obj/effect/gas_overlay)
 	var/gas_metabolically_inert = FALSE // If false, material will move into the bloodstream when breathed.
 
 	// Liquid behavior.
-	var/liquid_specific_heat = 4.187 // J/(g*k)
+	var/liquid_specific_heat = 4.187 // J/(g*K). Generally take the specific heat at constant pressure as we're concerned mostly with chemistry.
 	var/fusion_heat = 333.55         // J/g, enthalpy of fusion (not to be confused with nuclear fusion)
 	var/vaporization_heat = 7000     // J/g, enthalpy of vaporization
 	var/liquid_density = 0.997       // g/ml
@@ -624,7 +624,7 @@ INITIALIZE_IMMEDIATE(/obj/effect/gas_overlay)
 //Clausius–Clapeyron relation
 /decl/material/proc/get_boiling_temp(var/pressure = ONE_ATMOSPHERE)
 	var/pressure_ratio = (pressure > 0)? log(pressure / ONE_ATMOSPHERE) : 0
-	return (1 / (1/max(boiling_point, TCMB)) - ((R_IDEAL_GAS_EQUATION * pressure_ratio) / (latent_heat * molar_mass)))
+	return (1 / (1/max(boiling_point, TCMB)) - ((R_IDEAL_GAS_EQUATION * pressure_ratio) / (vaporization_heat * molar_mass)))
 
 /// Returns the phase of the matterial at the given temperature and pressure
 /// Defaults to standard temperature and pressure (20c at one atmosphere)

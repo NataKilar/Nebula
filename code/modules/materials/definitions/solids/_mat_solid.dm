@@ -15,7 +15,7 @@
 	solid_specific_heat = 0.451 // iron
 	liquid_specific_heat = null
 
-	vaporization_heat =  = 6120 //iron
+	vaporization_heat = 6120 //iron
 
 	solid_density = 7.87 // iron
 	liquid_density = null
